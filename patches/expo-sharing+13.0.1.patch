@@ -1,0 +1,12 @@
+diff --git a/node_modules/expo-sharing/android/src/main/java/expo/modules/sharing/SharingModule.kt b/node_modules/expo-sharing/android/src/main/java/expo/modules/sharing/SharingModule.kt
+index 8ad453f..0817cf9 100644
+--- a/node_modules/expo-sharing/android/src/main/java/expo/modules/sharing/SharingModule.kt
++++ b/node_modules/expo-sharing/android/src/main/java/expo/modules/sharing/SharingModule.kt
+@@ -83,6 +83,7 @@ class SharingModule : Module() {
+   }
+
+   private fun isAllowedToRead(url: String?): Boolean {
++    if (url == null) return false
+     val permissions = appContext.filePermission
+     return permissions?.getPathPermissions(context, url)?.contains(Permission.READ)
+       ?: false

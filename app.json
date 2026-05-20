@@ -1,0 +1,84 @@
+{
+  "expo": {
+    "name": "Unecondo Morador",
+    "slug": "unecondo-resident",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f97316"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f97316"
+      },
+      "package": "com.unecondo.resident",
+      "googleServicesFile": "./google-services.json",
+      "usesCleartextTraffic": true,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "./plugins/withGradleWrapper",
+      "./plugins/withNetworkSecurityConfig",
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#f97316",
+          "sounds": ["./assets/sounds/package_arrival.wav"],
+          "androidMode": "default",
+          "androidCollapsedTitle": "Unecondo"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Unecondo to access your camera to photograph package labels."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Unecondo to access your photos."
+        }
+      ],
+      "expo-font",
+      "expo-secure-store",
+      "expo-screen-orientation",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Unecondo to use Face ID for login."
+        }
+      ]
+    ],
+    "scheme": "unecondo-resident",
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bd38d81c-a220-4efa-9000-0f5d8987e53a"
+      }
+    },
+    "owner": "jrpn.env"
+  }
+}
