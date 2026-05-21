@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { Package2, Megaphone, CalendarCheck, DollarSign, AlertCircle } from "lucide-react-native";
 import { useAuthStore } from "../../store/auth";
 import { getMyPackages } from "../../lib/packages";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getAnnouncements } from "../../lib/announcements";
 import { getMyCondoFees } from "../../lib/condoFees";
 
@@ -26,6 +27,7 @@ function SummaryCard({ icon, label, value, color, onPress }: any) {
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const { data: packages = [], isLoading: loadPkg, refetch: refPkg, isRefetching: refPkging } = useQuery({
     queryKey: ["my-packages"],
@@ -53,7 +55,7 @@ export default function HomeScreen() {
       className="flex-1 bg-gray-50 dark:bg-gray-900"
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refPkg} tintColor="#f97316" />}
     >
-      <View className="px-4 pt-10 pb-4">
+      <View className="px-4 pb-4" style={{ paddingTop: insets.top + 12 }}>
         <Text className="text-gray-500 dark:text-gray-400 text-sm">Olá,</Text>
         <Text className="text-2xl font-bold text-gray-900 dark:text-white">{user?.name?.split(" ")[0]} 👋</Text>
       </View>

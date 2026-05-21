@@ -6,6 +6,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { DollarSign, CheckCircle, AlertCircle, Clock, Copy, X } from "lucide-react-native";
 import { getMyCondoFees, type CondoFee, type FeeStatus } from "../../lib/condoFees";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 const MONTHS = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
@@ -149,10 +150,7 @@ export default function FinancialScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <View className="px-4 pt-10 pb-4">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white">Financeiro</Text>
-        <Text className="text-sm text-gray-500 mt-1">Taxas condominiais</Text>
-      </View>
+      <ScreenHeader title="Financeiro" subtitle="Taxas condominiais" />
 
       {totalPending > 0 && (
         <View className="mx-4 mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 rounded-2xl p-4">

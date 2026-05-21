@@ -10,6 +10,7 @@ import {
   updateReservationStatus, type Space, type Reservation,
 } from "../../lib/reservations";
 import { useAuthStore } from "../../store/auth";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 const STATUS_LABELS = { PENDING: "Pendente", CONFIRMED: "Confirmada", CANCELLED: "Cancelada" };
 const STATUS_COLORS = { PENDING: "#f97316", CONFIRMED: "#22c55e", CANCELLED: "#ef4444" };
@@ -56,9 +57,7 @@ export default function ReservationsScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <View className="px-4 pt-6 pb-2">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white">Reservas</Text>
-      </View>
+      <ScreenHeader title="Reservas" />
 
       <View className="flex-row border-b border-gray-200 dark:border-gray-700 px-4">
         {(["spaces", "mine"] as const).filter(t => t === "spaces" || isResident).map(t => (

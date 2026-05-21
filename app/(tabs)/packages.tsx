@@ -6,6 +6,7 @@ import { Search, Package2 } from "lucide-react-native";
 import { getMyPackages } from "../../lib/packages";
 import { PackageCard } from "../../components/PackageCard";
 import { PackageStatus } from "../../types";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 const STATUS_FILTERS: { label: string; value: PackageStatus | undefined }[] = [
   { label: "Todos",      value: undefined   },
@@ -34,9 +35,8 @@ export default function PackagesScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <View className="px-4 pt-10 pb-3 bg-gray-50 dark:bg-gray-900">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Minhas Encomendas</Text>
-
+      <ScreenHeader title="Minhas Encomendas" />
+      <View className="px-4 pb-3 bg-gray-50 dark:bg-gray-900">
         <View className="flex-row items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl px-3 mb-3">
           <Search size={16} color="#9ca3af" />
           <TextInput

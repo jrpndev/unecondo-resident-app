@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, Alert, ScrollView, ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LogOut, Shield, Building2, Mail, ChevronRight, QrCode, Settings } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../store/auth";
@@ -14,6 +15,7 @@ try { QRCode = require("react-native-qrcode-svg").default; } catch {}
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const hasResident = !!user?.residentId;
 
@@ -39,7 +41,7 @@ export default function ProfileScreen() {
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Header */}
-      <View className="bg-orange-500 pt-14 pb-10 px-5 items-center rounded-b-[40px]">
+      <View className="bg-orange-500 pb-10 px-5 items-center rounded-b-[40px]" style={{ paddingTop: insets.top + 20 }}>
         <View className="w-20 h-20 bg-white/20 rounded-full items-center justify-center mb-3 border-4 border-white/30">
           <Text className="text-white text-2xl font-bold">{initials}</Text>
         </View>

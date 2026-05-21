@@ -5,6 +5,7 @@ import {
   CalendarCheck, DollarSign, User, ChevronRight, LogOut,
   QrCode, Settings,
 } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/auth";
 
 interface MenuItem {
@@ -40,6 +41,7 @@ function MenuRow({ icon, label, sub, color, onPress }: MenuItem) {
 export default function MoreScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const initials = user?.name
     ?.split(" ")
@@ -68,7 +70,7 @@ export default function MoreScreen() {
       contentContainerStyle={{ paddingBottom: 32 }}
     >
       {/* User header */}
-      <View className="bg-orange-500 pt-14 pb-8 px-5 items-center">
+      <View className="bg-orange-500 pb-8 px-5 items-center" style={{ paddingTop: insets.top + 20 }}>
         <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-2 border-2 border-white/30">
           <Text className="text-white text-xl font-bold">{initials}</Text>
         </View>
