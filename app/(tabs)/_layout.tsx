@@ -1,11 +1,13 @@
 import React from "react";
 import { Tabs, Redirect } from "expo-router";
-import { Home, Package2, Megaphone, CalendarCheck, DollarSign, User } from "lucide-react-native";
+import { Home, Package2, Megaphone, MoreHorizontal } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/auth";
 import { LoadingScreen } from "../../components/LoadingScreen";
 
 export default function TabsLayout() {
   const { user, isLoading } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   if (isLoading) return <LoadingScreen />;
   if (!user) return <Redirect href="/(auth)/login" />;
@@ -20,9 +22,9 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: "#ffffff",
           borderTopColor: "#f3f4f6",
-          paddingBottom: 6,
           paddingTop: 6,
-          height: 62,
+          height: 56 + insets.bottom,
+          paddingBottom: insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: "500" },
       }}
@@ -49,26 +51,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="reservations"
+        name="more"
         options={{
-          title: "Reservas",
-          tabBarIcon: ({ color, size }) => <CalendarCheck size={size} color={color} />,
+          title: "Mais",
+          tabBarIcon: ({ color, size }) => <MoreHorizontal size={size} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="financial"
-        options={{
-          title: "Financeiro",
-          tabBarIcon: ({ color, size }) => <DollarSign size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Perfil",
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
-        }}
-      />
+
+      {/* Hidden screens — accessible via router.push */}
+      <Tabs.Screen name="reservations" options={{ href: null }} />
+      <Tabs.Screen name="financial" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
