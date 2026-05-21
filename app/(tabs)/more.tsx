@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import {
   CalendarCheck, DollarSign, User, ChevronRight, LogOut,
-  QrCode, Settings,
+  QrCode, Settings, FileText, AlertCircle, Wrench, Vote, MessageCircle,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/auth";
@@ -96,6 +96,41 @@ export default function MoreScreen() {
             sub="Boletos e cobranças"
             color="#22c55e"
             onPress={() => router.push("/(tabs)/financial")}
+          />
+          <MenuRow
+            icon={<MessageCircle size={20} color="#3b82f6" />}
+            label="Chat"
+            sub="Fale com a administração"
+            color="#3b82f6"
+            onPress={() => router.push("/chat")}
+          />
+          <MenuRow
+            icon={<AlertCircle size={20} color="#f59e0b" />}
+            label="Ocorrências"
+            sub="Chamados e solicitações"
+            color="#f59e0b"
+            onPress={() => router.push("/tickets")}
+          />
+          <MenuRow
+            icon={<FileText size={20} color="#6366f1" />}
+            label="Documentos"
+            sub="Atas, regulamentos e contratos"
+            color="#6366f1"
+            onPress={() => router.push("/documents")}
+          />
+          <MenuRow
+            icon={<Vote size={20} color="#ec4899" />}
+            label="Assembleias"
+            sub="Votações virtuais"
+            color="#ec4899"
+            onPress={() => router.push("/assemblies")}
+          />
+          <MenuRow
+            icon={<Wrench size={20} color="#14b8a6" />}
+            label="Manutenções"
+            sub="Programadas e preventivas"
+            color="#14b8a6"
+            onPress={() => router.push("/maintenance-items")}
           />
         </View>
       </View>
