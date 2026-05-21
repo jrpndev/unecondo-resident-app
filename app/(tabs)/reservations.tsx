@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View, Text, FlatList, RefreshControl, TouchableOpacity,
   ActivityIndicator, Modal, TextInput, ScrollView, Alert, Clipboard,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarCheck, Copy, Check, AlertCircle } from "lucide-react-native";
+import { CalendarCheck, Copy, Check, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react-native";
 import {
-  getSpaces, getMyReservations, createReservation,
+  getSpaces, getMyReservations, createReservation, getReservedDates,
   updateReservationStatus, type Space, type Reservation, type ReservationPaymentStatus,
 } from "../../lib/reservations";
 import { useAuthStore } from "../../store/auth";
@@ -26,6 +26,9 @@ const PAY_COLORS: Record<ReservationPaymentStatus, string> = {
   PAID: "#22c55e",
 };
 
+const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
+const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
 function fmtDate(d: string) {
   return new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 }
@@ -44,13 +47,129 @@ function CopyPix({ text }: { text: string }) {
   };
   return (
     <TouchableOpacity onPress={doCopy} className="flex-row items-center gap-1 mt-2 py-1">
-      {copied
-        ? <Check size={14} color="#22c55e" />
-        : <Copy size={14} color="#f97316" />}
+      {copied ? <Check size={14} color="#22c55e" /> : <Copy size={14} color="#f97316" />}
       <Text className={`text-xs font-semibold ${copied ? "text-green-500" : "text-orange-500"}`}>
         {copied ? "Copiado!" : "Copiar chave PIX"}
       </Text>
     </TouchableOpacity>
+  );
+}
+
+function CalendarPicker({
+  selected,
+  onSelect,
+  reservedDates,
+  viewYear,
+  viewMonth,
+  onMonthChange,
+}: {
+  selected: string;
+  onSelect: (date: string) => void;
+  reservedDates: string[];
+  viewYear: number;
+  viewMonth: number; // 0-indexed
+  onMonthChange: (year: number, month: number) => void;
+}) {
+  const today = new Date();
+  const reserved = useMemo(() => new Set(reservedDates), [reservedDates]);
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+  const prevMonth = () => {
+    if (viewMonth === 0) onMonthChange(viewYear - 1, 11);
+    else onMonthChange(viewYear, viewMonth - 1);
+  };
+  const nextMonth = () => {
+    if (viewMonth === 11) onMonthChange(viewYear + 1, 0);
+    else onMonthChange(viewYear, viewMonth + 1);
+  };
+
+  const cells: (number | null)[] = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return (
+    <View className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-3 mb-3">
+      {/* Header */}
+      <View className="flex-row items-center justify-between mb-3">
+        <TouchableOpacity onPress={prevMonth} className="p-1">
+          <ChevronLeft size={18} color="#6b7280" />
+        </TouchableOpacity>
+        <Text className="font-semibold text-gray-900 dark:text-white text-sm">
+          {MONTH_NAMES[viewMonth]} {viewYear}
+        </Text>
+        <TouchableOpacity onPress={nextMonth} className="p-1">
+          <ChevronRight size={18} color="#6b7280" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Weekday labels */}
+      <View className="flex-row mb-1">
+        {WEEKDAYS.map((d, i) => (
+          <View key={i} className="flex-1 items-center">
+            <Text className="text-xs text-gray-400 font-medium">{d}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Days grid */}
+      {Array.from({ length: cells.length / 7 }, (_, row) => (
+        <View key={row} className="flex-row">
+          {cells.slice(row * 7, row * 7 + 7).map((day, col) => {
+            if (!day) return <View key={col} className="flex-1 aspect-square" />;
+            const mm = String(viewMonth + 1).padStart(2, "0");
+            const dd = String(day).padStart(2, "0");
+            const dateStr = `${viewYear}-${mm}-${dd}`;
+            const isReserved = reserved.has(dateStr);
+            const isPast = new Date(dateStr) < new Date(today.toISOString().slice(0, 10));
+            const isSelected = selected === dateStr;
+            const disabled = isReserved || isPast;
+
+            return (
+              <TouchableOpacity
+                key={col}
+                onPress={() => !disabled && onSelect(dateStr)}
+                disabled={disabled}
+                className="flex-1 items-center justify-center py-1"
+              >
+                <View
+                  className="w-8 h-8 rounded-full items-center justify-center"
+                  style={{
+                    backgroundColor: isSelected ? "#f97316" : isReserved ? "#fee2e2" : "transparent",
+                  }}
+                >
+                  <Text
+                    className="text-xs font-medium"
+                    style={{
+                      color: isSelected
+                        ? "#fff"
+                        : isReserved
+                        ? "#ef4444"
+                        : isPast
+                        ? "#d1d5db"
+                        : "#111827",
+                    }}
+                  >
+                    {day}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      ))}
+
+      <View className="flex-row items-center gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+        <View className="flex-row items-center gap-1">
+          <View className="w-3 h-3 rounded-full bg-orange-500" />
+          <Text className="text-xs text-gray-400">Selecionado</Text>
+        </View>
+        <View className="flex-row items-center gap-1">
+          <View className="w-3 h-3 rounded-full bg-red-100" />
+          <Text className="text-xs text-gray-400">Ocupado</Text>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -64,8 +183,13 @@ export default function ReservationsScreen() {
   const [reserveModal, setReserveModal] = useState<Space | null>(null);
   const [pixModal, setPixModal] = useState<Reservation | null>(null);
   const [form, setForm] = useState({ date: "", startTime: "", endTime: "", notes: "" });
-  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD'>('PIX');
-  const [cardForm, setCardForm] = useState({ holderName: '', number: '', expiryMonth: '', expiryYear: '', ccv: '' });
+  const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD">("PIX");
+  const [cardForm, setCardForm] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
+
+  // calMonth is 0-indexed (Jan=0) matching the calendar component; API receives calMonth+1
+  const today = new Date();
+  const [calYear, setCalYear] = useState(today.getFullYear());
+  const [calMonth, setCalMonth] = useState(today.getMonth()); // 0-indexed
 
   const { data: spaces = [], isLoading: loadSpaces, refetch: refetchSpaces, isRefetching: refSpaces } = useQuery({
     queryKey: ["spaces", condoId],
@@ -78,23 +202,30 @@ export default function ReservationsScreen() {
     enabled: tab === "mine" && isResident,
   });
 
+  const { data: reservedDates = [] } = useQuery({
+    queryKey: ["reserved-dates", reserveModal?.id, calYear, calMonth],
+    queryFn: () => getReservedDates(reserveModal!.id, calYear, calMonth + 1),
+    enabled: !!reserveModal,
+  });
+
   const create = useMutation({
     mutationFn: () => createReservation({
       spaceId: reserveModal!.id,
       ...form,
       paymentMethod: reserveModal?.price ? paymentMethod : undefined,
-      creditCard: paymentMethod === 'CREDIT_CARD' && reserveModal?.price ? cardForm : undefined,
+      creditCard: paymentMethod === "CREDIT_CARD" && reserveModal?.price ? cardForm : undefined,
     }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["reservations-mine"] });
+      qc.invalidateQueries({ queryKey: ["reserved-dates", reserveModal?.id] });
       setReserveModal(null);
       setForm({ date: "", startTime: "", endTime: "", notes: "" });
-      setPaymentMethod('PIX');
-      setCardForm({ holderName: '', number: '', expiryMonth: '', expiryYear: '', ccv: '' });
+      setPaymentMethod("PIX");
+      setCardForm({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
       if (data.pixCopiaECola) {
         setPixModal(data);
-      } else if (data.paymentStatus === 'PAID') {
-        Alert.alert('Pagamento confirmado!', 'Sua reserva foi confirmada com sucesso.');
+      } else if (data.paymentStatus === "PAID") {
+        Alert.alert("Pagamento confirmado!", "Sua reserva foi confirmada com sucesso.");
       }
     },
     onError: (e: any) => Alert.alert("Erro", e?.response?.data?.message ?? "Horário indisponível ou cartão recusado"),
@@ -104,6 +235,19 @@ export default function ReservationsScreen() {
     mutationFn: (id: string) => updateReservationStatus(id, "CANCELLED"),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["reservations-mine"] }),
   });
+
+  const handleDateSelect = (dateStr: string) => {
+    setForm(f => ({ ...f, date: dateStr }));
+    const [y, , m0] = dateStr.split("-").map(Number);
+    setCalYear(y);
+    setCalMonth(m0 - 1); // convert from 1-indexed date month to 0-indexed calMonth
+  };
+
+  // Calendar navigates: receives 0-indexed month
+  const handleCalMonthChange = (year: number, month: number) => {
+    setCalYear(year);
+    setCalMonth(month);
+  };
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900">
@@ -151,7 +295,11 @@ export default function ReservationsScreen() {
                 </View>
                 {isResident && (
                   <TouchableOpacity
-                    onPress={() => setReserveModal(item)}
+                    onPress={() => {
+                      setReserveModal(item);
+                      setCalYear(today.getFullYear());
+                      setCalMonth(today.getMonth()); // 0-indexed
+                    }}
                     className="bg-orange-500 rounded-xl py-2 flex-row items-center justify-center gap-2 active:opacity-80"
                   >
                     <CalendarCheck size={16} color="#fff" />
@@ -235,13 +383,20 @@ export default function ReservationsScreen() {
               )}
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text className="text-xs text-gray-500 mb-1">Data (AAAA-MM-DD)</Text>
-              <TextInput
-                className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white mb-3"
-                placeholder="2026-06-15"
-                value={form.date}
-                onChangeText={v => setForm(f => ({ ...f, date: v }))}
+              <Text className="text-xs text-gray-500 mb-2 font-medium">Selecione a data</Text>
+              <CalendarPicker
+                selected={form.date}
+                onSelect={handleDateSelect}
+                reservedDates={reservedDates}
+                viewYear={calYear}
+                viewMonth={calMonth}
+                onMonthChange={handleCalMonthChange}
               />
+              {form.date ? (
+                <Text className="text-xs text-orange-500 font-semibold mb-3">
+                  Data selecionada: {fmtDate(form.date)}
+                </Text>
+              ) : null}
               <View className="flex-row gap-2 mb-3">
                 <View className="flex-1">
                   <Text className="text-xs text-gray-500 mb-1">Início (HH:MM)</Text>
@@ -272,22 +427,22 @@ export default function ReservationsScreen() {
                 <View className="mb-3">
                   <Text className="text-xs text-gray-500 mb-2">Forma de pagamento</Text>
                   <View className="flex-row gap-2">
-                    {(['PIX', 'CREDIT_CARD'] as const).map(m => (
+                    {(["PIX", "CREDIT_CARD"] as const).map(m => (
                       <TouchableOpacity
                         key={m}
                         onPress={() => setPaymentMethod(m)}
-                        className={`flex-1 py-2 rounded-xl border items-center ${paymentMethod === m ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}
+                        className={`flex-1 py-2 rounded-xl border items-center ${paymentMethod === m ? "border-orange-500 bg-orange-50" : "border-gray-200"}`}
                       >
-                        <Text className={`text-xs font-semibold ${paymentMethod === m ? 'text-orange-600' : 'text-gray-500'}`}>
-                          {m === 'PIX' ? 'PIX' : 'Cartão de Crédito'}
+                        <Text className={`text-xs font-semibold ${paymentMethod === m ? "text-orange-600" : "text-gray-500"}`}>
+                          {m === "PIX" ? "PIX" : "Cartão de Crédito"}
                         </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 </View>
               ) : null}
-              {paymentMethod === 'CREDIT_CARD' && reserveModal?.price ? (
-                <View className="space-y-2 mb-3">
+              {paymentMethod === "CREDIT_CARD" && reserveModal?.price ? (
+                <View className="gap-2 mb-3">
                   <Text className="text-xs text-gray-500 font-medium">Dados do cartão</Text>
                   <TextInput
                     className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
@@ -300,7 +455,7 @@ export default function ReservationsScreen() {
                     className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                     placeholder="Número do cartão"
                     value={cardForm.number}
-                    onChangeText={v => setCardForm(f => ({ ...f, number: v.replace(/\D/g, '').slice(0, 16) }))}
+                    onChangeText={v => setCardForm(f => ({ ...f, number: v.replace(/\D/g, "").slice(0, 16) }))}
                     keyboardType="numeric"
                     maxLength={16}
                   />
@@ -309,7 +464,7 @@ export default function ReservationsScreen() {
                       className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                       placeholder="Mês (MM)"
                       value={cardForm.expiryMonth}
-                      onChangeText={v => setCardForm(f => ({ ...f, expiryMonth: v.replace(/\D/g, '').slice(0, 2) }))}
+                      onChangeText={v => setCardForm(f => ({ ...f, expiryMonth: v.replace(/\D/g, "").slice(0, 2) }))}
                       keyboardType="numeric"
                       maxLength={2}
                     />
@@ -317,7 +472,7 @@ export default function ReservationsScreen() {
                       className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                       placeholder="Ano (AAAA)"
                       value={cardForm.expiryYear}
-                      onChangeText={v => setCardForm(f => ({ ...f, expiryYear: v.replace(/\D/g, '').slice(0, 4) }))}
+                      onChangeText={v => setCardForm(f => ({ ...f, expiryYear: v.replace(/\D/g, "").slice(0, 4) }))}
                       keyboardType="numeric"
                       maxLength={4}
                     />
@@ -325,7 +480,7 @@ export default function ReservationsScreen() {
                       className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                       placeholder="CVC"
                       value={cardForm.ccv}
-                      onChangeText={v => setCardForm(f => ({ ...f, ccv: v.replace(/\D/g, '').slice(0, 4) }))}
+                      onChangeText={v => setCardForm(f => ({ ...f, ccv: v.replace(/\D/g, "").slice(0, 4) }))}
                       keyboardType="numeric"
                       maxLength={4}
                       secureTextEntry
@@ -337,7 +492,7 @@ export default function ReservationsScreen() {
                 onPress={() => create.mutate()}
                 disabled={
                   !form.date || !form.startTime || !form.endTime || create.isPending ||
-                  (paymentMethod === 'CREDIT_CARD' && !!reserveModal?.price && (
+                  (paymentMethod === "CREDIT_CARD" && !!reserveModal?.price && (
                     !cardForm.holderName || !cardForm.number || !cardForm.expiryMonth || !cardForm.expiryYear || !cardForm.ccv
                   ))
                 }
