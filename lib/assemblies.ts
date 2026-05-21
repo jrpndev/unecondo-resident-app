@@ -29,7 +29,7 @@ export async function getAssemblies(): Promise<Assembly[]> {
   return res.data?.data ?? res.data ?? [];
 }
 
-export async function castVote(itemId: string, choice: 'YES' | 'NO' | 'ABSTAIN', unitId: string): Promise<AssemblyVote> {
-  const res = await api.post(`/assemblies/items/${itemId}/vote`, { choice, unitId });
+export async function castVote(itemId: string, choice: 'YES' | 'NO' | 'ABSTAIN'): Promise<AssemblyVote> {
+  const res = await api.post(`/assemblies/items/${itemId}/vote`, { choice });
   return res.data?.data ?? res.data;
 }

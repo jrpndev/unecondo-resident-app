@@ -26,13 +26,10 @@ export default function AssembliesScreen() {
 
   const handleVote = async (itemId: string, choice: "YES" | "NO" | "ABSTAIN") => {
     if (!user?.residentId) return Toast.show({ type: "error", text1: "Cadastro incompleto" });
-    const resident = (user as any).resident;
-    const unitId = resident?.unitId ?? "";
-    if (!unitId) return Toast.show({ type: "error", text1: "Sem unidade associada" });
 
     setVoting(true);
     try {
-      await castVote(itemId, choice, unitId);
+      await castVote(itemId, choice);
       await load();
       const updated = assemblies.find(a => a.agendaItems.some(i => i.id === itemId));
       if (updated) {

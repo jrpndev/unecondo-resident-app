@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import {
   View, Text, FlatList, RefreshControl,
-  TouchableOpacity, ActivityIndicator,
+  TouchableOpacity, ActivityIndicator, Image, Linking,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pin } from "lucide-react-native";
@@ -50,9 +50,19 @@ export default function AnnouncementsScreen() {
                 <View className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0" />
               )}
             </View>
-            <Text className="text-sm text-gray-600 dark:text-gray-300" numberOfLines={3}>
+            <Text className="text-sm text-gray-600 dark:text-gray-300" numberOfLines={item.imageUrl ? 2 : 3}>
               {item.body}
             </Text>
+            {item.imageUrl && (
+              <TouchableOpacity onPress={() => Linking.openURL(item.imageUrl!)} activeOpacity={0.85}>
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  className="mt-2 rounded-xl w-full"
+                  style={{ height: 160 }}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            )}
             <Text className="text-xs text-gray-400 mt-2">{fmtDate(item.createdAt)}</Text>
           </View>
         </View>

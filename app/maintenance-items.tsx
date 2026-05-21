@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Linking, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowLeft, Wrench, Calendar, CheckCircle } from "lucide-react-native";
+import { ArrowLeft, Wrench, Calendar, CheckCircle, X } from "lucide-react-native";
 import { getMaintenanceItems, MaintenanceItem } from "../lib/condoMaintenance";
 
 export default function MaintenanceItemsScreen() {
@@ -62,6 +62,7 @@ export default function MaintenanceItemsScreen() {
 }
 
 function Section({ title, items, color }: { title: string; items: MaintenanceItem[]; color: string }) {
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   return (
     <View className="mb-6">
       <Text className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3">{title}</Text>
@@ -84,10 +85,28 @@ function Section({ title, items, color }: { title: string; items: MaintenanceIte
                 )}
               </View>
               {item.description && <Text className="text-gray-500 text-xs mt-1" numberOfLines={2}>{item.description}</Text>}
+              {item.imageUrl && (
+                <TouchableOpacity onPress={() => setZoomedImage(item.imageUrl!)} activeOpacity={0.85} className="mt-2">
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    className="rounded-xl w-full"
+                    style={{ height: 120 }}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         ))}
       </View>
+      <Modal visible={!!zoomedImage} transparent animationType="fade" onRequestClose={() => setZoomedImage(null)}>
+        <TouchableOpacity className="flex-1 bg-black/90 items-center justify-center" onPress={() => setZoomedImage(null)} activeOpacity={1}>
+          {zoomedImage && <Image source={{ uri: zoomedImage }} style={{ width: "95%", height: "70%" }} resizeMode="contain" />}
+          <View className="absolute top-12 right-4 bg-black/60 rounded-full p-2">
+            <X size={20} color="white" />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }

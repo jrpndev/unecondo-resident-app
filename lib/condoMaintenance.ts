@@ -5,6 +5,7 @@ export interface MaintenanceItem {
   title: string;
   description?: string;
   location?: string;
+  imageUrl?: string;
   scheduledDate: string;
   recurrence?: string;
   isDone: boolean;
