@@ -265,7 +265,7 @@ export default function LoginScreen() {
           {mode === "password" && (
             <>
               <Text className="text-white text-2xl font-bold mb-1">Bem-vindo</Text>
-              <Text className="text-gray-400 text-sm mb-8">Acesso para porteiros e moradores</Text>
+              <Text className="text-gray-400 text-sm mb-8">Acesso exclusivo para moradores</Text>
 
               {savedAccounts.length > 0 && (
                 <View className="mb-6">
