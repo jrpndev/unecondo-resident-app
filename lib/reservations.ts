@@ -6,11 +6,14 @@ export interface Space {
   name: string;
   description?: string;
   capacity?: number;
+  imageUrl?: string;
+  price?: number | null;
   rules?: string;
   isActive: boolean;
 }
 
 export type ReservationStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
+export type ReservationPaymentStatus = "EXEMPT" | "PENDING_PAYMENT" | "PAID";
 
 export interface Reservation {
   id: string;
@@ -21,6 +24,9 @@ export interface Reservation {
   startTime: string;
   endTime: string;
   status: ReservationStatus;
+  paymentStatus?: ReservationPaymentStatus;
+  totalAmount?: number | null;
+  pixCopiaECola?: string | null;
   notes?: string;
   space?: Space;
   createdAt: string;
