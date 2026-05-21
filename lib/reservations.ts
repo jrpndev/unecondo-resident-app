@@ -48,6 +48,14 @@ export async function createReservation(data: {
   startTime: string;
   endTime: string;
   notes?: string;
+  paymentMethod?: 'PIX' | 'CREDIT_CARD';
+  creditCard?: {
+    holderName: string;
+    number: string;
+    expiryMonth: string;
+    expiryYear: string;
+    ccv: string;
+  };
 }): Promise<Reservation> {
   const response = await api.post("/reservations", data);
   return extractData<Reservation>(response);

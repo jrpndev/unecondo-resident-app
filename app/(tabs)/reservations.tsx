@@ -64,6 +64,8 @@ export default function ReservationsScreen() {
   const [reserveModal, setReserveModal] = useState<Space | null>(null);
   const [pixModal, setPixModal] = useState<Reservation | null>(null);
   const [form, setForm] = useState({ date: "", startTime: "", endTime: "", notes: "" });
+  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD'>('PIX');
+  const [cardForm, setCardForm] = useState({ holderName: '', number: '', expiryMonth: '', expiryYear: '', ccv: '' });
 
   const { data: spaces = [], isLoading: loadSpaces, refetch: refetchSpaces, isRefetching: refSpaces } = useQuery({
     queryKey: ["spaces", condoId],
@@ -77,16 +79,25 @@ export default function ReservationsScreen() {
   });
 
   const create = useMutation({
-    mutationFn: () => createReservation({ spaceId: reserveModal!.id, ...form }),
+    mutationFn: () => createReservation({
+      spaceId: reserveModal!.id,
+      ...form,
+      paymentMethod: reserveModal?.price ? paymentMethod : undefined,
+      creditCard: paymentMethod === 'CREDIT_CARD' && reserveModal?.price ? cardForm : undefined,
+    }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["reservations-mine"] });
       setReserveModal(null);
       setForm({ date: "", startTime: "", endTime: "", notes: "" });
+      setPaymentMethod('PIX');
+      setCardForm({ holderName: '', number: '', expiryMonth: '', expiryYear: '', ccv: '' });
       if (data.pixCopiaECola) {
         setPixModal(data);
+      } else if (data.paymentStatus === 'PAID') {
+        Alert.alert('Pagamento confirmado!', 'Sua reserva foi confirmada com sucesso.');
       }
     },
-    onError: (e: any) => Alert.alert("Erro", e?.response?.data?.message ?? "Horário indisponível"),
+    onError: (e: any) => Alert.alert("Erro", e?.response?.data?.message ?? "Horário indisponível ou cartão recusado"),
   });
 
   const cancel = useMutation({
@@ -217,7 +228,7 @@ export default function ReservationsScreen() {
               </Text>
               {reserveModal?.price ? (
                 <Text className="text-sm text-orange-500 font-medium mt-0.5">
-                  {fmtPrice(reserveModal.price)} · Pagamento via PIX
+                  {fmtPrice(reserveModal.price)}
                 </Text>
               ) : (
                 <Text className="text-sm text-green-600 mt-0.5">Gratuito</Text>
@@ -252,14 +263,84 @@ export default function ReservationsScreen() {
                 </View>
               </View>
               <TextInput
-                className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white mb-4"
+                className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white mb-3"
                 placeholder="Observações (opcional)"
                 value={form.notes}
                 onChangeText={v => setForm(f => ({ ...f, notes: v }))}
               />
+              {reserveModal?.price ? (
+                <View className="mb-3">
+                  <Text className="text-xs text-gray-500 mb-2">Forma de pagamento</Text>
+                  <View className="flex-row gap-2">
+                    {(['PIX', 'CREDIT_CARD'] as const).map(m => (
+                      <TouchableOpacity
+                        key={m}
+                        onPress={() => setPaymentMethod(m)}
+                        className={`flex-1 py-2 rounded-xl border items-center ${paymentMethod === m ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}
+                      >
+                        <Text className={`text-xs font-semibold ${paymentMethod === m ? 'text-orange-600' : 'text-gray-500'}`}>
+                          {m === 'PIX' ? 'PIX' : 'Cartão de Crédito'}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ) : null}
+              {paymentMethod === 'CREDIT_CARD' && reserveModal?.price ? (
+                <View className="space-y-2 mb-3">
+                  <Text className="text-xs text-gray-500 font-medium">Dados do cartão</Text>
+                  <TextInput
+                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                    placeholder="Nome no cartão"
+                    value={cardForm.holderName}
+                    onChangeText={v => setCardForm(f => ({ ...f, holderName: v }))}
+                    autoCapitalize="characters"
+                  />
+                  <TextInput
+                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                    placeholder="Número do cartão"
+                    value={cardForm.number}
+                    onChangeText={v => setCardForm(f => ({ ...f, number: v.replace(/\D/g, '').slice(0, 16) }))}
+                    keyboardType="numeric"
+                    maxLength={16}
+                  />
+                  <View className="flex-row gap-2">
+                    <TextInput
+                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                      placeholder="Mês (MM)"
+                      value={cardForm.expiryMonth}
+                      onChangeText={v => setCardForm(f => ({ ...f, expiryMonth: v.replace(/\D/g, '').slice(0, 2) }))}
+                      keyboardType="numeric"
+                      maxLength={2}
+                    />
+                    <TextInput
+                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                      placeholder="Ano (AAAA)"
+                      value={cardForm.expiryYear}
+                      onChangeText={v => setCardForm(f => ({ ...f, expiryYear: v.replace(/\D/g, '').slice(0, 4) }))}
+                      keyboardType="numeric"
+                      maxLength={4}
+                    />
+                    <TextInput
+                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                      placeholder="CVC"
+                      value={cardForm.ccv}
+                      onChangeText={v => setCardForm(f => ({ ...f, ccv: v.replace(/\D/g, '').slice(0, 4) }))}
+                      keyboardType="numeric"
+                      maxLength={4}
+                      secureTextEntry
+                    />
+                  </View>
+                </View>
+              ) : null}
               <TouchableOpacity
                 onPress={() => create.mutate()}
-                disabled={!form.date || !form.startTime || !form.endTime || create.isPending}
+                disabled={
+                  !form.date || !form.startTime || !form.endTime || create.isPending ||
+                  (paymentMethod === 'CREDIT_CARD' && !!reserveModal?.price && (
+                    !cardForm.holderName || !cardForm.number || !cardForm.expiryMonth || !cardForm.expiryYear || !cardForm.ccv
+                  ))
+                }
                 className="bg-orange-500 rounded-xl py-3 items-center active:opacity-80 disabled:opacity-50"
               >
                 <Text className="text-white font-semibold">
