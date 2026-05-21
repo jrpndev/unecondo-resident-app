@@ -69,7 +69,7 @@ export async function registerPushToken(): Promise<void> {
     if (finalStatus !== "granted") return;
 
     const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId: "bd38d81c-a220-4efa-9000-0f5d8987e53a",
+      projectId: "1d7ef01a-05dd-46dc-ad50-9111a440556f",
     });
 
     await api.patch("/auth/me/push-token", { pushToken: tokenData.data });

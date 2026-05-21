@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { User } from "../types";
 import { removeToken, saveToken, saveRefreshToken, removeRefreshToken } from "../lib/auth";
+import { clearPushToken } from "../lib/notifications";
 import { queryClient } from "../lib/queryClient";
 
 interface AuthState {
@@ -23,6 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ token, user });
   },
   logout: async () => {
+    await clearPushToken().catch(() => {});
     await removeToken();
     await removeRefreshToken();
     queryClient.clear();
