@@ -184,7 +184,10 @@ export default function ReservationsScreen() {
   const [pixModal, setPixModal] = useState<Reservation | null>(null);
   const [form, setForm] = useState({ date: "", startTime: "", endTime: "", notes: "" });
   const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD">("PIX");
-  const [cardForm, setCardForm] = useState({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
+  const [cardHolderName, setCardHolderName] = useState("");
+  const [cardNumberDisplay, setCardNumberDisplay] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCcv, setCardCcv] = useState("");
 
   // calMonth is 0-indexed (Jan=0) matching the calendar component; API receives calMonth+1
   const today = new Date();
@@ -213,7 +216,13 @@ export default function ReservationsScreen() {
       spaceId: reserveModal!.id,
       ...form,
       paymentMethod: reserveModal?.price ? paymentMethod : undefined,
-      creditCard: paymentMethod === "CREDIT_CARD" && reserveModal?.price ? cardForm : undefined,
+      creditCard: paymentMethod === "CREDIT_CARD" && reserveModal?.price ? {
+        holderName: cardHolderName,
+        number: cardNumberDisplay.replace(/\s/g, ""),
+        expiryMonth: cardExpiry.split("/")[0] ?? "",
+        expiryYear: cardExpiry.split("/")[1] ? "20" + cardExpiry.split("/")[1] : "",
+        ccv: cardCcv,
+      } : undefined,
     }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["reservations-mine"] });
@@ -221,7 +230,7 @@ export default function ReservationsScreen() {
       setReserveModal(null);
       setForm({ date: "", startTime: "", endTime: "", notes: "" });
       setPaymentMethod("PIX");
-      setCardForm({ holderName: "", number: "", expiryMonth: "", expiryYear: "", ccv: "" });
+      setCardHolderName(""); setCardNumberDisplay(""); setCardExpiry(""); setCardCcv("");
       if (data.pixCopiaECola) {
         setPixModal(data);
       } else if (data.paymentStatus === "PAID") {
@@ -404,7 +413,12 @@ export default function ReservationsScreen() {
                     className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                     placeholder="09:00"
                     value={form.startTime}
-                    onChangeText={v => setForm(f => ({ ...f, startTime: v }))}
+                    onChangeText={v => {
+                      const d = v.replace(/\D/g, "").slice(0, 4);
+                      setForm(f => ({ ...f, startTime: d.length <= 2 ? d : d.slice(0, 2) + ":" + d.slice(2) }));
+                    }}
+                    keyboardType="numeric"
+                    maxLength={5}
                   />
                 </View>
                 <View className="flex-1">
@@ -413,7 +427,12 @@ export default function ReservationsScreen() {
                     className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                     placeholder="12:00"
                     value={form.endTime}
-                    onChangeText={v => setForm(f => ({ ...f, endTime: v }))}
+                    onChangeText={v => {
+                      const d = v.replace(/\D/g, "").slice(0, 4);
+                      setForm(f => ({ ...f, endTime: d.length <= 2 ? d : d.slice(0, 2) + ":" + d.slice(2) }));
+                    }}
+                    keyboardType="numeric"
+                    maxLength={5}
                   />
                 </View>
               </View>
@@ -446,41 +465,37 @@ export default function ReservationsScreen() {
                   <Text className="text-xs text-gray-500 font-medium">Dados do cartão</Text>
                   <TextInput
                     className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
-                    placeholder="Nome no cartão"
-                    value={cardForm.holderName}
-                    onChangeText={v => setCardForm(f => ({ ...f, holderName: v }))}
+                    placeholder="NOME NO CARTÃO"
+                    value={cardHolderName}
+                    onChangeText={setCardHolderName}
                     autoCapitalize="characters"
+                    autoCorrect={false}
                   />
                   <TextInput
-                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
-                    placeholder="Número do cartão"
-                    value={cardForm.number}
-                    onChangeText={v => setCardForm(f => ({ ...f, number: v.replace(/\D/g, "").slice(0, 16) }))}
+                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white tracking-widest"
+                    placeholder="0000 0000 0000 0000"
+                    value={cardNumberDisplay}
+                    onChangeText={v => setCardNumberDisplay(v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim())}
                     keyboardType="numeric"
-                    maxLength={16}
+                    maxLength={19}
                   />
                   <View className="flex-row gap-2">
                     <TextInput
                       className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
-                      placeholder="Mês (MM)"
-                      value={cardForm.expiryMonth}
-                      onChangeText={v => setCardForm(f => ({ ...f, expiryMonth: v.replace(/\D/g, "").slice(0, 2) }))}
+                      placeholder="MM/AA"
+                      value={cardExpiry}
+                      onChangeText={v => {
+                        const digits = v.replace(/\D/g, "").slice(0, 4);
+                        setCardExpiry(digits.length <= 2 ? digits : digits.slice(0, 2) + "/" + digits.slice(2));
+                      }}
                       keyboardType="numeric"
-                      maxLength={2}
-                    />
-                    <TextInput
-                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
-                      placeholder="Ano (AAAA)"
-                      value={cardForm.expiryYear}
-                      onChangeText={v => setCardForm(f => ({ ...f, expiryYear: v.replace(/\D/g, "").slice(0, 4) }))}
-                      keyboardType="numeric"
-                      maxLength={4}
+                      maxLength={5}
                     />
                     <TextInput
                       className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
                       placeholder="CVC"
-                      value={cardForm.ccv}
-                      onChangeText={v => setCardForm(f => ({ ...f, ccv: v.replace(/\D/g, "").slice(0, 4) }))}
+                      value={cardCcv}
+                      onChangeText={v => setCardCcv(v.replace(/\D/g, "").slice(0, 4))}
                       keyboardType="numeric"
                       maxLength={4}
                       secureTextEntry
@@ -493,7 +508,7 @@ export default function ReservationsScreen() {
                 disabled={
                   !form.date || !form.startTime || !form.endTime || create.isPending ||
                   (paymentMethod === "CREDIT_CARD" && !!reserveModal?.price && (
-                    !cardForm.holderName || !cardForm.number || !cardForm.expiryMonth || !cardForm.expiryYear || !cardForm.ccv
+                    !cardHolderName || cardNumberDisplay.replace(/\s/g, "").length < 15 || cardExpiry.length < 5 || cardCcv.length < 3
                   ))
                 }
                 className="bg-orange-500 rounded-xl py-3 items-center active:opacity-80 disabled:opacity-50"
