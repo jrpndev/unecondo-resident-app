@@ -1,22 +1,51 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View, Text, FlatList, RefreshControl,
   TouchableOpacity, ActivityIndicator, Image, Linking,
+  Modal, TextInput, Switch, Alert, ScrollView, StyleSheet,
+  KeyboardAvoidingView, Platform,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pin } from "lucide-react-native";
-import { getAnnouncements, markAnnouncementRead, type Announcement } from "../../lib/announcements";
+import { Pin, Plus, Pencil, X } from "lucide-react-native";
+import {
+  getAnnouncements, markAnnouncementRead, createAnnouncement, updateAnnouncement,
+  type Announcement,
+} from "../../lib/announcements";
 import { useAuthStore } from "../../store/auth";
 import { ScreenHeader } from "../../components/ScreenHeader";
+import Toast from "react-native-toast-message";
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+interface EditForm {
+  title: string;
+  body: string;
+  startsAt: string;
+  expiresAt: string;
+  displayDurationDays: string;
+  isPinned: boolean;
+}
+
+const EMPTY_FORM: EditForm = {
+  title: "",
+  body: "",
+  startsAt: "",
+  expiresAt: "",
+  displayDurationDays: "",
+  isPinned: false,
+};
+
 export default function AnnouncementsScreen() {
   const qc = useQueryClient();
   const { user } = useAuthStore();
   const condoId = user?.condoId ?? undefined;
+  const isAdmin = user?.role === "CONDO_ADMIN";
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editTarget, setEditTarget] = useState<Announcement | null>(null);
+  const [form, setForm] = useState<EditForm>(EMPTY_FORM);
 
   const { data: announcements = [], isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["announcements", condoId],
@@ -28,6 +57,52 @@ export default function AnnouncementsScreen() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["announcements"] }),
   });
 
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      const payload = {
+        title: form.title.trim(),
+        body: form.body.trim(),
+        isPinned: form.isPinned,
+        startsAt: form.startsAt.trim() || undefined,
+        expiresAt: form.expiresAt.trim() || undefined,
+        displayDurationDays: form.displayDurationDays ? parseInt(form.displayDurationDays) : undefined,
+      };
+      if (editTarget) {
+        return updateAnnouncement(editTarget.id, payload);
+      }
+      return createAnnouncement(payload);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["announcements"] });
+      setModalVisible(false);
+      setEditTarget(null);
+      setForm(EMPTY_FORM);
+      Toast.show({ type: "success", text1: editTarget ? "Aviso atualizado" : "Aviso publicado" });
+    },
+    onError: (e: any) => {
+      Toast.show({ type: "error", text1: "Erro", text2: e?.response?.data?.message ?? "Não foi possível salvar" });
+    },
+  });
+
+  const openCreate = () => {
+    setEditTarget(null);
+    setForm(EMPTY_FORM);
+    setModalVisible(true);
+  };
+
+  const openEdit = (item: Announcement) => {
+    setEditTarget(item);
+    setForm({
+      title: item.title,
+      body: item.body,
+      startsAt: item.startsAt ?? "",
+      expiresAt: item.expiresAt ?? "",
+      displayDurationDays: "",
+      isPinned: item.isPinned,
+    });
+    setModalVisible(true);
+  };
+
   const handlePress = useCallback((a: Announcement) => {
     if (!a.reads?.length) markRead.mutate(a.id);
   }, []);
@@ -35,35 +110,43 @@ export default function AnnouncementsScreen() {
   const renderItem = ({ item }: { item: Announcement }) => {
     const isRead = !!item.reads?.length;
     return (
-      <TouchableOpacity
-        onPress={() => handlePress(item)}
-        className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-3 shadow-sm active:opacity-80"
-      >
-        <View className="flex-row items-start gap-2">
-          {item.isPinned && <Pin size={14} color="#f97316" className="mt-0.5 flex-shrink-0" />}
-          <View className="flex-1">
-            <View className="flex-row items-center justify-between mb-1">
-              <Text className={`font-semibold flex-1 mr-2 ${isRead ? "text-gray-500 dark:text-gray-400" : "text-gray-900 dark:text-white"}`} numberOfLines={1}>
+      <TouchableOpacity onPress={() => handlePress(item)} style={styles.card} activeOpacity={0.8}>
+        <View style={styles.cardTop}>
+          {item.isPinned && (
+            <View style={styles.pinIcon}>
+              <Pin size={12} color="#f97316" />
+            </View>
+          )}
+          <View style={{ flex: 1 }}>
+            <View style={styles.cardHeader}>
+              <Text
+                style={[styles.cardTitle, isRead && styles.cardTitleRead]}
+                numberOfLines={1}
+              >
                 {item.title}
               </Text>
-              {!isRead && (
-                <View className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0" />
-              )}
+              {!isRead && <View style={styles.unreadDot} />}
             </View>
-            <Text className="text-sm text-gray-600 dark:text-gray-300" numberOfLines={item.imageUrl ? 2 : 3}>
+            <Text style={styles.cardBody} numberOfLines={item.imageUrl ? 2 : 3}>
               {item.body}
             </Text>
             {item.imageUrl && (
               <TouchableOpacity onPress={() => Linking.openURL(item.imageUrl!)} activeOpacity={0.85}>
                 <Image
                   source={{ uri: item.imageUrl }}
-                  className="mt-2 rounded-xl w-full"
-                  style={{ height: 160 }}
+                  style={styles.cardImage}
                   resizeMode="cover"
                 />
               </TouchableOpacity>
             )}
-            <Text className="text-xs text-gray-400 mt-2">{fmtDate(item.createdAt)}</Text>
+            <View style={styles.cardFooter}>
+              <Text style={styles.cardDate}>{fmtDate(item.createdAt)}</Text>
+              {isAdmin && (
+                <TouchableOpacity onPress={() => openEdit(item)} style={styles.editBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <Pencil size={13} color="#535353" />
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -72,27 +155,325 @@ export default function AnnouncementsScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <View style={styles.loading}>
         <ActivityIndicator color="#f97316" size="large" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <ScreenHeader title="Comunicados" />
+    <View style={styles.root}>
+      <ScreenHeader
+        title="Comunicados"
+        right={
+          isAdmin ? (
+            <TouchableOpacity onPress={openCreate} style={styles.addBtn}>
+              <Plus size={18} color="#ffffff" />
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
+
       <FlatList
         data={announcements}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={{ padding: 16, paddingTop: 8 }}
+        contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#f97316" />}
         ListEmptyComponent={
-          <View className="items-center justify-center py-20">
-            <Text className="text-gray-400 text-base">Nenhum comunicado</Text>
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>Nenhum comunicado</Text>
           </View>
         }
       />
+
+      {/* Edit / Create Modal */}
+      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalSheet}>
+              {/* Handle */}
+              <View style={styles.modalHandle} />
+
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>
+                  {editTarget ? "Editar aviso" : "Novo aviso"}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={styles.modalClose}
+                >
+                  <X size={18} color="#9a9a9a" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Text style={styles.fieldLabel}>TÍTULO</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="Ex: Manutenção na piscina"
+                  placeholderTextColor="#535353"
+                  value={form.title}
+                  onChangeText={v => setForm(f => ({ ...f, title: v }))}
+                />
+
+                <Text style={styles.fieldLabel}>TEXTO DO AVISO</Text>
+                <TextInput
+                  style={[styles.fieldInput, styles.fieldMultiline]}
+                  placeholder="Descreva o comunicado em detalhes..."
+                  placeholderTextColor="#535353"
+                  value={form.body}
+                  onChangeText={v => setForm(f => ({ ...f, body: v }))}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+
+                <Text style={styles.fieldLabel}>DATA DE INÍCIO (YYYY-MM-DD)</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="Ex: 2026-06-01"
+                  placeholderTextColor="#535353"
+                  value={form.startsAt}
+                  onChangeText={v => setForm(f => ({ ...f, startsAt: v }))}
+                  keyboardType="numeric"
+                />
+
+                <Text style={styles.fieldLabel}>DATA DE TÉRMINO (YYYY-MM-DD)</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="Ex: 2026-06-30"
+                  placeholderTextColor="#535353"
+                  value={form.expiresAt}
+                  onChangeText={v => setForm(f => ({ ...f, expiresAt: v }))}
+                  keyboardType="numeric"
+                />
+
+                <Text style={styles.fieldLabel}>DURAÇÃO EM DIAS (opcional)</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="Ex: 7"
+                  placeholderTextColor="#535353"
+                  value={form.displayDurationDays}
+                  onChangeText={v => setForm(f => ({ ...f, displayDurationDays: v.replace(/\D/g, "") }))}
+                  keyboardType="numeric"
+                />
+
+                <View style={styles.toggleRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.toggleLabel}>Fixar aviso</Text>
+                    <Text style={styles.toggleSub}>Exibe no topo da lista</Text>
+                  </View>
+                  <Switch
+                    value={form.isPinned}
+                    onValueChange={v => setForm(f => ({ ...f, isPinned: v }))}
+                    trackColor={{ false: "#2a2a2a", true: "#f97316" }}
+                    thumbColor="#ffffff"
+                  />
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!form.title.trim() || !form.body.trim()) {
+                      return Alert.alert("Campos obrigatórios", "Preencha o título e o texto do aviso.");
+                    }
+                    saveMutation.mutate();
+                  }}
+                  disabled={saveMutation.isPending}
+                  style={[styles.saveBtn, saveMutation.isPending && { opacity: 0.5 }]}
+                >
+                  <Text style={styles.saveBtnText}>
+                    {saveMutation.isPending ? "Salvando..." : editTarget ? "Salvar alterações" : "Publicar aviso"}
+                  </Text>
+                </TouchableOpacity>
+
+                <View style={{ height: 24 }} />
+              </ScrollView>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#111111" },
+  loading: { flex: 1, backgroundColor: "#111111", alignItems: "center", justifyContent: "center" },
+  list: { padding: 20, paddingTop: 12 },
+  empty: { alignItems: "center", justifyContent: "center", paddingTop: 80 },
+  emptyText: { fontSize: 15, color: "#535353" },
+  addBtn: {
+    width: 36,
+    height: 36,
+    backgroundColor: "#f97316",
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  card: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    padding: 16,
+    marginBottom: 10,
+  },
+  cardTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  pinIcon: {
+    width: 24,
+    height: 24,
+    backgroundColor: "#f9731620",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 1,
+    flexShrink: 0,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#ffffff",
+    flex: 1,
+    marginRight: 8,
+  },
+  cardTitleRead: {
+    color: "#535353",
+    fontWeight: "500",
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#f97316",
+    flexShrink: 0,
+  },
+  cardBody: {
+    fontSize: 13,
+    color: "#9a9a9a",
+    lineHeight: 19,
+  },
+  cardImage: {
+    marginTop: 10,
+    width: "100%",
+    height: 160,
+    borderRadius: 10,
+  },
+  cardFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  cardDate: {
+    fontSize: 11,
+    color: "#535353",
+  },
+  editBtn: {
+    padding: 4,
+  },
+  // Modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "flex-end",
+  },
+  modalSheet: {
+    backgroundColor: "#1a1a1a",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    maxHeight: "90%",
+  },
+  modalHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: "#2a2a2a",
+    borderRadius: 2,
+    alignSelf: "center",
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  modalClose: {
+    width: 32,
+    height: 32,
+    backgroundColor: "#242424",
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  fieldLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#535353",
+    letterSpacing: 1.2,
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  fieldInput: {
+    backgroundColor: "#242424",
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    color: "#ffffff",
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  fieldMultiline: {
+    minHeight: 100,
+    paddingTop: 13,
+  },
+  toggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#242424",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  toggleLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  toggleSub: {
+    fontSize: 12,
+    color: "#535353",
+    marginTop: 2,
+  },
+  saveBtn: {
+    backgroundColor: "#f97316",
+    borderRadius: 999,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  saveBtnText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+});

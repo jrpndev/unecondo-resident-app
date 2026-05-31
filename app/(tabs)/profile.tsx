@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  View, Text, TouchableOpacity, Alert, ScrollView, ActivityIndicator,
+  View, Text, TouchableOpacity, Alert, ScrollView, ActivityIndicator, StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,124 +39,300 @@ export default function ProfileScreen() {
   const initials = user?.name?.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 48 }}>
       {/* Header */}
-      <View className="bg-orange-500 pb-10 px-5 items-center rounded-b-[40px]" style={{ paddingTop: insets.top + 20 }}>
-        <View className="w-20 h-20 bg-white/20 rounded-full items-center justify-center mb-3 border-4 border-white/30">
-          <Text className="text-white text-2xl font-bold">{initials}</Text>
+      <View style={[styles.headerArea, { paddingTop: insets.top + 32 }]}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{initials}</Text>
         </View>
-        <Text className="text-white text-xl font-bold">{user?.name}</Text>
-        <Text className="text-white/80 text-sm mt-0.5">{user?.email}</Text>
-        <View className="mt-3 px-3 py-1 rounded-full bg-white/20">
-          <Text className="text-white text-xs font-bold">Morador</Text>
+        <Text style={styles.userName}>{user?.name}</Text>
+        <Text style={styles.userEmail}>{user?.email}</Text>
+        <View style={styles.roleBadge}>
+          <Text style={styles.roleBadgeText}>
+            {user?.role === "CONDO_ADMIN" ? "Síndico" : "Morador"}
+          </Text>
         </View>
       </View>
 
-      <View className="px-5 mt-6">
-        {/* QR Code for package pickup */}
+      <View style={styles.body}>
+        {/* QR Code */}
         {hasResident && (
-          <View className="mb-6">
-            <Text className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-3">
-              QR Code de retirada
-            </Text>
-            <View className="bg-white dark:bg-gray-800 rounded-2xl p-5 items-center border border-gray-100 dark:border-gray-700 shadow-sm">
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>QR CODE DE RETIRADA</Text>
+            <View style={styles.qrCard}>
               {loadingQr ? (
-                <ActivityIndicator color="#f97316" size="large" style={{ marginVertical: 40 }} />
+                <ActivityIndicator color="#f97316" size="large" style={{ marginVertical: 48 }} />
               ) : residentData?.qrToken && QRCode ? (
                 <>
-                  <View className="p-3 bg-white border border-gray-100 rounded-2xl mb-3">
+                  <View style={styles.qrWrapper}>
                     <QRCode
                       value={residentData.qrToken}
-                      size={180}
-                      color="#1f2937"
-                      backgroundColor="white"
+                      size={184}
+                      color="#ffffff"
+                      backgroundColor="#1a1a1a"
                     />
                   </View>
-                  <View className="flex-row items-center gap-1.5 mt-1 px-4">
+                  <View style={styles.qrHint}>
                     <QrCode size={13} color="#f97316" />
-                    <Text className="text-orange-500 text-xs font-semibold text-center flex-1">
-                      Mostre este código ao porteiro para retirar sua encomenda
+                    <Text style={styles.qrHintText}>
+                      Mostre ao porteiro para retirar sua encomenda
                     </Text>
                   </View>
                   {residentData?.unit && (
-                    <Text className="text-gray-400 text-xs mt-1">
+                    <Text style={styles.qrUnit}>
                       Apto {residentData.unit.number}
                       {residentData.unit.block ? ` · Bloco ${residentData.unit.block}` : ""}
                     </Text>
                   )}
                 </>
               ) : (
-                <Text className="text-gray-400 text-sm py-8">QR Code não disponível</Text>
+                <Text style={styles.qrEmpty}>QR Code não disponível</Text>
               )}
             </View>
           </View>
         )}
 
         {/* Account info */}
-        <Text className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-3">
-          Informações da conta
-        </Text>
-
-        <View className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden mb-4 border border-gray-100 dark:border-gray-700 shadow-sm">
-          <View className="flex-row items-center p-4 border-b border-gray-100 dark:border-gray-700">
-            <View className="w-9 h-9 bg-orange-50 dark:bg-orange-900/20 rounded-xl items-center justify-center mr-3">
-              <Mail size={16} color="#f97316" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-gray-400 text-xs">E-mail</Text>
-              <Text className="text-gray-900 dark:text-white text-sm font-semibold mt-0.5">{user?.email}</Text>
-            </View>
-          </View>
-
-          <View className="flex-row items-center p-4 border-b border-gray-100 dark:border-gray-700">
-            <View className="w-9 h-9 bg-violet-50 dark:bg-violet-900/20 rounded-xl items-center justify-center mr-3">
-              <Shield size={16} color="#8b5cf6" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-gray-400 text-xs">Função</Text>
-              <Text className="text-gray-900 dark:text-white text-sm font-semibold mt-0.5">Morador</Text>
-            </View>
-          </View>
-
-          {user?.condoId && (
-            <View className="flex-row items-center p-4">
-              <View className="w-9 h-9 bg-blue-50 dark:bg-blue-900/20 rounded-xl items-center justify-center mr-3">
-                <Building2 size={16} color="#3b82f6" />
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>INFORMAÇÕES DA CONTA</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={[styles.infoIcon, { backgroundColor: "#f9731615" }]}>
+                <Mail size={16} color="#f97316" />
               </View>
-              <View className="flex-1">
-                <Text className="text-gray-400 text-xs">Condomínio</Text>
-                <Text className="text-gray-900 dark:text-white text-sm font-semibold mt-0.5" numberOfLines={1}>
-                  {residentData?.condo?.name ?? user.condoId}
+              <View style={styles.infoText}>
+                <Text style={styles.infoKey}>E-mail</Text>
+                <Text style={styles.infoValue}>{user?.email}</Text>
+              </View>
+            </View>
+            <View style={styles.infoDivider} />
+            <View style={styles.infoRow}>
+              <View style={[styles.infoIcon, { backgroundColor: "#8b5cf615" }]}>
+                <Shield size={16} color="#8b5cf6" />
+              </View>
+              <View style={styles.infoText}>
+                <Text style={styles.infoKey}>Função</Text>
+                <Text style={styles.infoValue}>
+                  {user?.role === "CONDO_ADMIN" ? "Síndico" : "Morador"}
                 </Text>
               </View>
             </View>
-          )}
+            {user?.condoId && (
+              <>
+                <View style={styles.infoDivider} />
+                <View style={styles.infoRow}>
+                  <View style={[styles.infoIcon, { backgroundColor: "#3b82f615" }]}>
+                    <Building2 size={16} color="#3b82f6" />
+                  </View>
+                  <View style={styles.infoText}>
+                    <Text style={styles.infoKey}>Condomínio</Text>
+                    <Text style={styles.infoValue} numberOfLines={1}>
+                      {residentData?.condo?.name ?? user.condoId}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
+          </View>
         </View>
 
         {/* Settings */}
         <TouchableOpacity
           onPress={() => router.push("/settings")}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center mb-3 border border-gray-100 dark:border-gray-700 shadow-sm active:opacity-80"
+          style={styles.actionRow}
+          activeOpacity={0.75}
         >
-          <View className="w-9 h-9 bg-gray-100 dark:bg-gray-700 rounded-xl items-center justify-center mr-3">
-            <Settings size={16} color="#6b7280" />
+          <View style={[styles.actionIcon, { backgroundColor: "#2a2a2a" }]}>
+            <Settings size={18} color="#9a9a9a" />
           </View>
-          <Text className="text-gray-900 dark:text-white text-sm font-semibold flex-1">Configurações</Text>
-          <ChevronRight size={16} color="#d1d5db" />
+          <Text style={styles.actionLabel}>Configurações</Text>
+          <ChevronRight size={16} color="#535353" />
         </TouchableOpacity>
 
         {/* Logout */}
         <TouchableOpacity
           onPress={confirmLogout}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-4 flex-row items-center border border-gray-100 dark:border-gray-700 shadow-sm active:opacity-80"
+          style={[styles.actionRow, styles.logoutRow]}
+          activeOpacity={0.75}
         >
-          <View className="w-9 h-9 bg-red-50 dark:bg-red-900/20 rounded-xl items-center justify-center mr-3">
-            <LogOut size={16} color="#ef4444" />
+          <View style={[styles.actionIcon, { backgroundColor: "#ef444415" }]}>
+            <LogOut size={18} color="#ef4444" />
           </View>
-          <Text className="text-red-500 font-bold flex-1">Sair da conta</Text>
-          <ChevronRight size={16} color="#fca5a5" />
+          <Text style={[styles.actionLabel, { color: "#ef4444" }]}>Sair da conta</Text>
+          <ChevronRight size={16} color="#7f1d1d" />
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#111111",
+  },
+  headerArea: {
+    alignItems: "center",
+    paddingBottom: 32,
+    paddingHorizontal: 24,
+  },
+  avatar: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: "#1a1a1a",
+    borderWidth: 3,
+    borderColor: "#f97316",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  avatarText: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#f97316",
+  },
+  userName: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  userEmail: {
+    fontSize: 13,
+    color: "#9a9a9a",
+    marginTop: 3,
+  },
+  roleBadge: {
+    marginTop: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    backgroundColor: "#f9731618",
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#f9731630",
+  },
+  roleBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#f97316",
+  },
+  body: {
+    paddingHorizontal: 20,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#535353",
+    letterSpacing: 1.5,
+    marginBottom: 10,
+  },
+  qrCard: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    padding: 20,
+    alignItems: "center",
+  },
+  qrWrapper: {
+    padding: 16,
+    backgroundColor: "#1a1a1a",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    marginBottom: 16,
+  },
+  qrHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 16,
+    marginBottom: 6,
+  },
+  qrHintText: {
+    fontSize: 12,
+    color: "#f97316",
+    fontWeight: "600",
+    textAlign: "center",
+    flex: 1,
+  },
+  qrUnit: {
+    fontSize: 12,
+    color: "#535353",
+    marginTop: 4,
+  },
+  qrEmpty: {
+    fontSize: 14,
+    color: "#535353",
+    paddingVertical: 32,
+  },
+  infoCard: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    overflow: "hidden",
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+  },
+  infoDivider: {
+    height: 1,
+    backgroundColor: "#2a2a2a",
+    marginLeft: 60,
+  },
+  infoIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  infoText: {
+    flex: 1,
+  },
+  infoKey: {
+    fontSize: 11,
+    color: "#535353",
+    fontWeight: "500",
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
+    marginTop: 2,
+  },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    padding: 14,
+    marginBottom: 10,
+  },
+  logoutRow: {
+    borderColor: "#3a1a1a",
+  },
+  actionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  actionLabel: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+});

@@ -11,22 +11,23 @@ export default function TabsLayout() {
 
   if (isLoading) return <LoadingScreen />;
   if (!user) return <Redirect href="/(auth)/login" />;
-  if (user.role !== "RESIDENT") return <Redirect href="/(auth)/login" />;
+  if (user.role !== "RESIDENT" && user.role !== "CONDO_ADMIN") return <Redirect href="/(auth)/login" />;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#f97316",
-        tabBarInactiveTintColor: "#9ca3af",
+        tabBarInactiveTintColor: "#535353",
         tabBarStyle: {
-          backgroundColor: "#ffffff",
-          borderTopColor: "#f3f4f6",
-          paddingTop: 6,
-          height: 56 + insets.bottom,
+          backgroundColor: "#111111",
+          borderTopColor: "#2a2a2a",
+          borderTopWidth: 1,
+          paddingTop: 8,
+          height: 60 + insets.bottom,
           paddingBottom: insets.bottom,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "500" },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
       }}
     >
       <Tabs.Screen

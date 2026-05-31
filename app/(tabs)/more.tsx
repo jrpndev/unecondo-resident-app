@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Alert, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import {
   CalendarCheck, DollarSign, User, ChevronRight, LogOut,
-  QrCode, Settings, FileText, AlertCircle, Wrench, Vote, MessageCircle,
+  Settings, FileText, AlertCircle, Wrench, Vote, MessageCircle,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/auth";
@@ -12,28 +12,18 @@ interface MenuItem {
   icon: React.ReactNode;
   label: string;
   sub: string;
-  color: string;
   onPress: () => void;
 }
 
-function MenuRow({ icon, label, sub, color, onPress }: MenuItem) {
+function MenuRow({ icon, label, sub, onPress }: MenuItem) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className="flex-row items-center bg-white dark:bg-gray-800 px-4 py-3.5 border-b border-gray-100 dark:border-gray-700 active:opacity-70"
-    >
-      <View
-        className="w-10 h-10 rounded-2xl items-center justify-center mr-4"
-        style={{ backgroundColor: color + "18" }}
-      >
-        {icon}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.menuRow}>
+      <View style={styles.menuIcon}>{icon}</View>
+      <View style={styles.menuText}>
+        <Text style={styles.menuLabel}>{label}</Text>
+        <Text style={styles.menuSub}>{sub}</Text>
       </View>
-      <View className="flex-1">
-        <Text className="text-gray-900 dark:text-white text-sm font-semibold">{label}</Text>
-        <Text className="text-gray-400 text-xs mt-0.5">{sub}</Text>
-      </View>
-      <ChevronRight size={16} color="#d1d5db" />
+      <ChevronRight size={16} color="#535353" />
     </TouchableOpacity>
   );
 }
@@ -66,112 +56,237 @@ export default function MoreScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-gray-50 dark:bg-gray-900"
-      contentContainerStyle={{ paddingBottom: 32 }}
+      style={styles.root}
+      contentContainerStyle={{ paddingBottom: 40 }}
     >
       {/* User header */}
-      <View className="bg-orange-500 pb-8 px-5 items-center" style={{ paddingTop: insets.top + 20 }}>
-        <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-2 border-2 border-white/30">
-          <Text className="text-white text-xl font-bold">{initials}</Text>
+      <View style={[styles.userHeader, { paddingTop: insets.top + 28 }]}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{initials}</Text>
         </View>
-        <Text className="text-white text-base font-bold">{user?.name}</Text>
-        <Text className="text-white/70 text-xs mt-0.5">{user?.email}</Text>
+        <Text style={styles.userName}>{user?.name}</Text>
+        <Text style={styles.userEmail}>{user?.email}</Text>
+        <View style={styles.roleBadge}>
+          <Text style={styles.roleBadgeText}>
+            {user?.role === "CONDO_ADMIN" ? "Síndico" : "Morador"}
+          </Text>
+        </View>
       </View>
 
-      <View className="mt-5 mx-4">
-        <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">
-          Serviços
-        </Text>
-        <View className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm">
+      {/* Services */}
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>SERVIÇOS</Text>
+        <View style={styles.menuGroup}>
           <MenuRow
             icon={<CalendarCheck size={20} color="#8b5cf6" />}
             label="Reservas"
             sub="Áreas comuns do condomínio"
-            color="#8b5cf6"
             onPress={() => router.push("/(tabs)/reservations")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
             icon={<DollarSign size={20} color="#22c55e" />}
             label="Financeiro"
             sub="Boletos e cobranças"
-            color="#22c55e"
             onPress={() => router.push("/(tabs)/financial")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
             icon={<MessageCircle size={20} color="#3b82f6" />}
             label="Chat"
             sub="Fale com a administração"
-            color="#3b82f6"
             onPress={() => router.push("/chat")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
             icon={<AlertCircle size={20} color="#f59e0b" />}
             label="Ocorrências"
             sub="Chamados e solicitações"
-            color="#f59e0b"
             onPress={() => router.push("/tickets")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
             icon={<FileText size={20} color="#6366f1" />}
             label="Documentos"
             sub="Atas, regulamentos e contratos"
-            color="#6366f1"
             onPress={() => router.push("/documents")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
             icon={<Vote size={20} color="#ec4899" />}
             label="Assembleias"
             sub="Votações virtuais"
-            color="#ec4899"
             onPress={() => router.push("/assemblies")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
             icon={<Wrench size={20} color="#14b8a6" />}
             label="Manutenções"
             sub="Programadas e preventivas"
-            color="#14b8a6"
             onPress={() => router.push("/maintenance-items")}
           />
         </View>
       </View>
 
-      <View className="mt-5 mx-4">
-        <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">
-          Conta
-        </Text>
-        <View className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm">
+      {/* Account */}
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>CONTA</Text>
+        <View style={styles.menuGroup}>
           <MenuRow
             icon={<User size={20} color="#f97316" />}
             label="Perfil"
             sub="QR Code, unidade e dados"
-            color="#f97316"
             onPress={() => router.push("/(tabs)/profile")}
           />
+          <View style={styles.menuDivider} />
           <MenuRow
-            icon={<Settings size={20} color="#6b7280" />}
+            icon={<Settings size={20} color="#9a9a9a" />}
             label="Configurações"
             sub="Notificações e preferências"
-            color="#6b7280"
             onPress={() => router.push("/settings")}
           />
         </View>
       </View>
 
-      <View className="mt-5 mx-4">
-        <View className="rounded-2xl overflow-hidden border border-red-100 dark:border-red-900/30 shadow-sm">
-          <TouchableOpacity
-            onPress={confirmLogout}
-            activeOpacity={0.7}
-            className="flex-row items-center bg-white dark:bg-gray-800 px-4 py-3.5"
-          >
-            <View className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/20 items-center justify-center mr-4">
-              <LogOut size={20} color="#ef4444" />
-            </View>
-            <Text className="text-red-500 font-bold flex-1">Sair da conta</Text>
-            <ChevronRight size={16} color="#fca5a5" />
-          </TouchableOpacity>
-        </View>
+      {/* Logout */}
+      <View style={[styles.section, { marginTop: 0 }]}>
+        <TouchableOpacity onPress={confirmLogout} activeOpacity={0.7} style={styles.logoutRow}>
+          <View style={styles.logoutIcon}>
+            <LogOut size={20} color="#ef4444" />
+          </View>
+          <Text style={styles.logoutText}>Sair da conta</Text>
+          <ChevronRight size={16} color="#7f1d1d" />
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#111111",
+  },
+  userHeader: {
+    alignItems: "center",
+    paddingBottom: 32,
+    paddingHorizontal: 24,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#1a1a1a",
+    borderWidth: 2,
+    borderColor: "#f97316",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  avatarText: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#f97316",
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  userEmail: {
+    fontSize: 13,
+    color: "#9a9a9a",
+    marginTop: 3,
+  },
+  roleBadge: {
+    marginTop: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    backgroundColor: "#f9731618",
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#f9731630",
+  },
+  roleBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#f97316",
+    letterSpacing: 0.5,
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#535353",
+    letterSpacing: 1.5,
+    marginBottom: 10,
+  },
+  menuGroup: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    overflow: "hidden",
+  },
+  menuRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: "#2a2a2a",
+    marginLeft: 56,
+  },
+  menuIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#242424",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  menuText: {
+    flex: 1,
+  },
+  menuLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  menuSub: {
+    fontSize: 12,
+    color: "#535353",
+    marginTop: 1,
+  },
+  logoutRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#3a1a1a",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  logoutIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#ef444415",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  logoutText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#ef4444",
+  },
+});

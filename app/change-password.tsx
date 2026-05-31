@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  View, Text, KeyboardAvoidingView, Platform, ScrollView, StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
@@ -34,11 +30,7 @@ export default function ChangePasswordScreen() {
   const { user, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
@@ -55,73 +47,62 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-gray-950"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Orange header */}
-        <View className="bg-primary-500 pt-20 pb-12 px-6 items-center rounded-b-[40px]">
-          <View className="w-20 h-20 bg-white/20 rounded-3xl items-center justify-center mb-4">
-            <KeyRound size={40} color="white" />
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <View style={styles.hero}>
+          <View style={styles.iconWrap}>
+            <KeyRound size={38} color="#ffffff" />
           </View>
-          <Text className="text-white text-2xl font-bold">Crie sua senha</Text>
-          <Text className="text-white/70 text-sm mt-1 text-center px-4">
+          <Text style={styles.heroTitle}>Crie sua senha</Text>
+          <Text style={styles.heroSub}>
             Este é seu primeiro acesso. Defina uma senha pessoal para continuar.
           </Text>
         </View>
 
-        <View className="flex-1 px-6 pt-8">
-          <Text className="text-white text-xl font-bold mb-1">
-            Olá, {user?.name?.split(" ")[0]}!
-          </Text>
-          <Text className="text-gray-400 text-sm mb-8">
-            Por segurança, você precisa criar uma nova senha antes de continuar.
+        <View style={styles.body}>
+          <Text style={styles.greeting}>Olá, {user?.name?.split(" ")[0]}!</Text>
+          <Text style={styles.sub}>
+            Por segurança, crie uma nova senha antes de continuar.
           </Text>
 
-          <Controller
-            control={control}
-            name="newPassword"
+          <Controller control={control} name="newPassword"
             render={({ field: { onChange, value, onBlur } }) => (
-              <Input
-                label="Nova senha"
-                placeholder="Mínimo 6 caracteres"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.newPassword?.message}
-              />
+              <Input label="Nova senha" placeholder="Mínimo 6 caracteres"
+                secureTextEntry value={value} onChangeText={onChange}
+                onBlur={onBlur} error={errors.newPassword?.message} />
             )}
           />
-
-          <Controller
-            control={control}
-            name="confirm"
+          <Controller control={control} name="confirm"
             render={({ field: { onChange, value, onBlur } }) => (
-              <Input
-                label="Confirmar senha"
-                placeholder="Repita a nova senha"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.confirm?.message}
-              />
+              <Input label="Confirmar senha" placeholder="Repita a nova senha"
+                secureTextEntry value={value} onChangeText={onChange}
+                onBlur={onBlur} error={errors.confirm?.message} />
             )}
           />
-
-          <Button
-            title="Criar senha e entrar"
-            loading={loading}
-            onPress={handleSubmit(onSubmit)}
-          />
+          <Button title="Criar senha e entrar" loading={loading} onPress={handleSubmit(onSubmit)} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#111111" },
+  hero: {
+    paddingTop: 80, paddingBottom: 48, paddingHorizontal: 32, alignItems: "center",
+  },
+  iconWrap: {
+    width: 80, height: 80, borderRadius: 40, backgroundColor: "#f97316",
+    alignItems: "center", justifyContent: "center", marginBottom: 22,
+    shadowColor: "#f97316", shadowOpacity: 0.4, shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 }, elevation: 14,
+  },
+  heroTitle: { fontSize: 28, fontWeight: "800", color: "#ffffff", textAlign: "center" },
+  heroSub: {
+    fontSize: 14, color: "#9a9a9a", marginTop: 8,
+    textAlign: "center", lineHeight: 20,
+  },
+  body: { flex: 1, paddingHorizontal: 24, paddingBottom: 40 },
+  greeting: { fontSize: 22, fontWeight: "700", color: "#ffffff", marginBottom: 6 },
+  sub: { fontSize: 14, color: "#9a9a9a", marginBottom: 28, lineHeight: 20 },
+});

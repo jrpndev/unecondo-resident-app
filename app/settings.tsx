@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Switch,
-  Alert,
-  Linking,
+  View, Text, TouchableOpacity, ScrollView, ActivityIndicator,
+  Switch, Alert, Linking, StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft, Bell, BellOff } from "lucide-react-native";
 import * as SecureStore from "expo-secure-store";
 import { registerPushToken, clearPushToken, NOTIF_PREF_KEY } from "../lib/notifications";
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
-  const [notifOn, setNotifOn]         = useState(false);
+  const [notifOn, setNotifOn] = useState(false);
   const [notifLoading, setNotifLoading] = useState(false);
 
   useEffect(() => {
@@ -65,48 +61,69 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-950" contentContainerStyle={{ paddingBottom: 40 }}>
-      {/* Header */}
-      <View className="bg-gray-900 px-5 pt-14 pb-4 border-b border-gray-800 flex-row items-center gap-3">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="w-10 h-10 bg-gray-800 rounded-xl items-center justify-center"
-        >
-          <ArrowLeft size={20} color="#9ca3af" />
+    <ScrollView style={styles.root} contentContainerStyle={{ paddingBottom: 40 }}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ArrowLeft size={18} color="#ffffff" />
         </TouchableOpacity>
-        <Text className="text-white text-xl font-bold">Configurações</Text>
+        <Text style={styles.headerTitle}>Configurações</Text>
       </View>
 
-      <View className="px-5 mt-6">
-        {/* Notifications */}
-        <Text className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">
-          Notificações
-        </Text>
-        <View className="bg-gray-900 rounded-2xl overflow-hidden mb-6 border border-gray-800">
-          <View className="flex-row items-center p-4">
-            <View className={`w-9 h-9 rounded-xl items-center justify-center mr-3 ${notifOn ? "bg-primary-900/40" : "bg-gray-800"}`}>
-              {notifOn ? <Bell size={16} color="#f97316" /> : <BellOff size={16} color="#6b7280" />}
-            </View>
-            <View className="flex-1">
-              <Text className="text-white text-sm font-semibold">Notificações push</Text>
-              <Text className="text-gray-500 text-xs mt-0.5">
-                {notifOn ? "Ativas — você receberá avisos em tempo real" : "Desativadas"}
-              </Text>
-            </View>
-            {notifLoading ? (
-              <ActivityIndicator size="small" color="#f97316" />
-            ) : (
-              <Switch
-                value={notifOn}
-                onValueChange={handleNotifToggle}
-                trackColor={{ false: "#374151", true: "#f97316" }}
-                thumbColor={notifOn ? "#ffffff" : "#9ca3af"}
-              />
-            )}
+      <View style={styles.body}>
+        <Text style={styles.sectionLabel}>NOTIFICAÇÕES</Text>
+        <View style={styles.settingCard}>
+          <View style={[styles.settingIcon, { backgroundColor: notifOn ? "#f9731618" : "#2a2a2a" }]}>
+            {notifOn ? <Bell size={18} color="#f97316" /> : <BellOff size={18} color="#535353" />}
           </View>
+          <View style={styles.settingText}>
+            <Text style={styles.settingTitle}>Notificações push</Text>
+            <Text style={styles.settingSub}>
+              {notifOn ? "Ativas — avisos em tempo real" : "Desativadas"}
+            </Text>
+          </View>
+          {notifLoading ? (
+            <ActivityIndicator size="small" color="#f97316" />
+          ) : (
+            <Switch
+              value={notifOn}
+              onValueChange={handleNotifToggle}
+              trackColor={{ false: "#2a2a2a", true: "#f97316" }}
+              thumbColor="#ffffff"
+            />
+          )}
         </View>
-
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#111111" },
+  header: {
+    flexDirection: "row", alignItems: "center",
+    paddingHorizontal: 20, paddingBottom: 16,
+    borderBottomWidth: 1, borderBottomColor: "#2a2a2a", gap: 14,
+  },
+  backBtn: {
+    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    borderRadius: 18, alignItems: "center", justifyContent: "center",
+  },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: "#ffffff" },
+  body: { paddingHorizontal: 20, paddingTop: 24 },
+  sectionLabel: {
+    fontSize: 10, fontWeight: "700", color: "#535353",
+    letterSpacing: 1.5, marginBottom: 10,
+  },
+  settingCard: {
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "#1a1a1a", borderRadius: 16,
+    borderWidth: 1, borderColor: "#2a2a2a", padding: 16, gap: 14,
+  },
+  settingIcon: {
+    width: 40, height: 40, borderRadius: 12,
+    alignItems: "center", justifyContent: "center",
+  },
+  settingText: { flex: 1 },
+  settingTitle: { fontSize: 14, fontWeight: "600", color: "#ffffff" },
+  settingSub: { fontSize: 12, color: "#535353", marginTop: 2 },
+});

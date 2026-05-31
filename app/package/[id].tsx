@@ -20,6 +20,7 @@ import { StatusBadge } from "../../components/StatusBadge";
 import { SignaturePad } from "../../components/SignaturePad";
 import { formatDate } from "../../lib/utils";
 import { Package, ORIGINS } from "../../types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function getOriginLabel(value: string) {
   return ORIGINS.find((o) => o.value === value)?.label ?? value;
@@ -74,6 +75,7 @@ export default function PackageDetailScreen() {
   const router = useRouter();
   const qc = useQueryClient();
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const [scannerOpen, setScannerOpen]       = useState(false);
   const [scanning, setScanning]             = useState(false);
@@ -171,8 +173,6 @@ export default function PackageDetailScreen() {
     try {
       const key = await uploadSignature(base64);
       await updatePackageStatus(id!, "DELIVERED", key);
-      // Restore portrait BEFORE closing the modal so the Activity
-      // doesn't recreate while the Modal is still in the tree.
       await unlockPortrait();
       setSignatureOpen(false);
       qc.invalidateQueries({ queryKey: ["package", id] });
@@ -200,46 +200,60 @@ export default function PackageDetailScreen() {
   const canSign = isDoorman && pkg.status === "PENDING" && !!pkg.residentId;
 
   const details = [
-    { icon: <Hash size={16} color="#9ca3af" />,        label: "Código de rastreio", value: pkg.trackingCode || "Sem código" },
-    { icon: <MapPin size={16} color="#9ca3af" />,       label: "Localização",        value: `${pkg.unit?.condo?.name ?? ""} — Unid. ${pkg.unit?.number ?? ""}` },
+    { icon: <Hash size={16} color="#9a9a9a" />,        label: "Código de rastreio", value: pkg.trackingCode || "Sem código" },
+    { icon: <MapPin size={16} color="#9a9a9a" />,       label: "Localização",        value: `${pkg.unit?.condo?.name ?? ""} — Unid. ${pkg.unit?.number ?? ""}` },
     pkg.resident
-      ? { icon: <User size={16} color="#9ca3af" />,     label: "Destinatário",       value: pkg.resident.name }
+      ? { icon: <User size={16} color="#9a9a9a" />,     label: "Destinatário",       value: pkg.resident.name }
       : null,
     pkg.recipientName
-      ? { icon: <User size={16} color="#9ca3af" />,     label: "Nome destinatário",  value: pkg.recipientName }
+      ? { icon: <User size={16} color="#9a9a9a" />,     label: "Nome destinatário",  value: pkg.recipientName }
       : null,
     pkg.senderName
-      ? { icon: <User size={16} color="#9ca3af" />,     label: "Remetente",          value: pkg.senderName }
+      ? { icon: <User size={16} color="#9a9a9a" />,     label: "Remetente",          value: pkg.senderName }
       : null,
     pkg.origin
-      ? { icon: <Globe size={16} color="#9ca3af" />,    label: "Origem",             value: getOriginLabel(pkg.origin) }
+      ? { icon: <Globe size={16} color="#9a9a9a" />,    label: "Origem",             value: getOriginLabel(pkg.origin) }
       : null,
     pkg.category
-      ? { icon: <Layers size={16} color="#9ca3af" />,   label: "Categoria",          value: pkg.category }
+      ? { icon: <Layers size={16} color="#9a9a9a" />,   label: "Categoria",          value: pkg.category }
       : null,
     pkg.weight
-      ? { icon: <Weight size={16} color="#9ca3af" />,   label: "Peso",               value: pkg.weight }
+      ? { icon: <Weight size={16} color="#9a9a9a" />,   label: "Peso",               value: pkg.weight }
       : null,
     pkg.orderId
-      ? { icon: <Tag size={16} color="#9ca3af" />,      label: "Nº do pedido",       value: pkg.orderId }
+      ? { icon: <Tag size={16} color="#9a9a9a" />,      label: "Nº do pedido",       value: pkg.orderId }
       : null,
-    { icon: <Calendar size={16} color="#9ca3af" />,     label: "Recebida em",        value: formatDate(pkg.createdAt) },
+    { icon: <Calendar size={16} color="#9a9a9a" />,     label: "Recebida em",        value: formatDate(pkg.createdAt) },
     pkg.deliveredAt
-      ? { icon: <CheckCircle2 size={16} color="#9ca3af" />, label: "Entregue em",    value: formatDate(pkg.deliveredAt) }
+      ? { icon: <CheckCircle2 size={16} color="#9a9a9a" />, label: "Entregue em",    value: formatDate(pkg.deliveredAt) }
       : null,
   ].filter(Boolean) as { icon: React.ReactNode; label: string; value: string }[];
 
   return (
-    <View className="flex-1 bg-gray-950">
+    <View style={{ flex: 1, backgroundColor: "#111111" }}>
       {/* Header */}
       <View
-        className="bg-gray-900 flex-row items-center px-5 pt-14 pb-4 border-b border-gray-800"
-        style={{ shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 }}
+        style={{
+          backgroundColor: "#111111",
+          flexDirection: "row",
+          alignItems: "center",
+          paddingTop: insets.top + 16,
+          paddingBottom: 16,
+          paddingHorizontal: 20,
+          borderBottomWidth: 1,
+          borderBottomColor: "#2a2a2a",
+        }}
       >
-        <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 bg-gray-800 rounded-xl items-center justify-center mr-3">
-          <ArrowLeft size={20} color="#e5e7eb" />
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{
+            width: 36, height: 36, backgroundColor: "#2a2a2a",
+            borderRadius: 999, alignItems: "center", justifyContent: "center", marginRight: 12,
+          }}
+        >
+          <ArrowLeft size={18} color="white" />
         </TouchableOpacity>
-        <Text className="text-white text-xl font-bold flex-1">Encomenda</Text>
+        <Text style={{ color: "white", fontSize: 20, fontWeight: "700", flex: 1 }}>Encomenda</Text>
         <StatusBadge status={pkg.status} />
       </View>
 
@@ -248,7 +262,7 @@ export default function PackageDetailScreen() {
           <TouchableOpacity activeOpacity={0.9} onPress={() => setFullscreenUri(pkg.imageUrl!)}>
             <Image
               source={{ uri: pkg.imageUrl }}
-              className="w-full h-52 rounded-3xl mb-5 bg-gray-800"
+              style={{ width: "100%", height: 208, borderRadius: 16, marginBottom: 20, backgroundColor: "#2a2a2a" }}
               resizeMode="cover"
             />
           </TouchableOpacity>
@@ -257,17 +271,19 @@ export default function PackageDetailScreen() {
         {/* Signature preview */}
         {pkg.signatureUrl && (
           <View
-            className="bg-gray-900 rounded-3xl p-4 mb-5 items-center border border-gray-800"
-            style={{ shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 3 }, elevation: 3 }}
+            style={{
+              backgroundColor: "#1a1a1a", borderRadius: 16, padding: 16,
+              marginBottom: 20, alignItems: "center", borderWidth: 1, borderColor: "#2a2a2a",
+            }}
           >
-            <View className="flex-row items-center mb-3">
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
               <PenTool size={14} color="#a78bfa" />
-              <Text className="text-violet-400 text-xs font-bold ml-1.5">Assinatura de retirada</Text>
+              <Text style={{ color: "#a78bfa", fontSize: 12, fontWeight: "700", marginLeft: 6 }}>Assinatura de retirada</Text>
             </View>
             <TouchableOpacity activeOpacity={0.9} onPress={() => setFullscreenUri(pkg.signatureUrl!)}>
               <Image
                 source={{ uri: pkg.signatureUrl }}
-                className="w-full h-28 rounded-xl bg-gray-800"
+                style={{ width: "100%", height: 112, borderRadius: 12, backgroundColor: "#2a2a2a" }}
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -276,25 +292,39 @@ export default function PackageDetailScreen() {
 
         {/* Details card */}
         <View
-          className="bg-gray-900 rounded-3xl p-5 mb-5 border border-gray-800"
-          style={{ shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 3 }, elevation: 3 }}
+          style={{
+            backgroundColor: "#1a1a1a", borderRadius: 16, padding: 20,
+            marginBottom: 20, borderWidth: 1, borderColor: "#2a2a2a",
+          }}
         >
-          <View className="flex-row items-center mb-5">
-            <View className="w-14 h-14 bg-primary-900/30 rounded-2xl items-center justify-center mr-4">
-              <Package2 size={26} color="#ea580c" />
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
+            <View style={{
+              width: 56, height: 56, backgroundColor: "rgba(249,115,22,0.1)",
+              borderRadius: 16, alignItems: "center", justifyContent: "center", marginRight: 16,
+            }}>
+              <Package2 size={26} color="#f97316" />
             </View>
-            <View className="flex-1">
-              <Text className="text-white font-bold text-base">{pkg.trackingCode || "Sem código de rastreio"}</Text>
-              <Text className="text-gray-500 text-sm mt-0.5">{pkg.description || "Sem descrição"}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: "white", fontWeight: "700", fontSize: 15 }}>{pkg.trackingCode || "Sem código de rastreio"}</Text>
+              <Text style={{ color: "#9a9a9a", fontSize: 13, marginTop: 2 }}>{pkg.description || "Sem descrição"}</Text>
             </View>
           </View>
 
           {details.map((item, i) => (
-            <View key={i} className={`flex-row items-start py-3.5 ${i < details.length - 1 ? "border-b border-gray-800" : ""}`}>
-              <View className="mr-3 mt-0.5 w-7 h-7 bg-gray-800 rounded-lg items-center justify-center">{item.icon}</View>
-              <View className="flex-1">
-                <Text className="text-gray-500 text-xs font-medium">{item.label}</Text>
-                <Text className="text-white text-sm font-semibold mt-0.5">{item.value}</Text>
+            <View key={i} style={{
+              flexDirection: "row", alignItems: "flex-start",
+              paddingVertical: 14,
+              borderBottomWidth: i < details.length - 1 ? 1 : 0,
+              borderBottomColor: "#2a2a2a",
+            }}>
+              <View style={{
+                marginRight: 12, marginTop: 2, width: 28, height: 28,
+                backgroundColor: "#2a2a2a", borderRadius: 8,
+                alignItems: "center", justifyContent: "center",
+              }}>{item.icon}</View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: "#5a5a5a", fontSize: 11, fontWeight: "500" }}>{item.label}</Text>
+                <Text style={{ color: "white", fontSize: 13, fontWeight: "600", marginTop: 2 }}>{item.value}</Text>
               </View>
             </View>
           ))}
@@ -303,11 +333,13 @@ export default function PackageDetailScreen() {
         {/* WhatsApp share */}
         <TouchableOpacity
           onPress={() => shareWhatsApp(pkg)}
-          className="bg-emerald-600 rounded-2xl py-4 flex-row items-center justify-center mb-3"
-          style={{ shadowColor: "#10b981", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}
+          style={{
+            backgroundColor: "#16a34a", borderRadius: 999, paddingVertical: 16,
+            flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 12,
+          }}
         >
           <MessageCircle size={20} color="white" />
-          <Text className="text-white font-bold text-base ml-2">Compartilhar via WhatsApp</Text>
+          <Text style={{ color: "white", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Compartilhar via WhatsApp</Text>
         </TouchableOpacity>
 
         {/* QR validation */}
@@ -315,11 +347,13 @@ export default function PackageDetailScreen() {
           <TouchableOpacity
             onPress={openQrScanner}
             disabled={statusMutation.isPending}
-            className="bg-indigo-600 rounded-2xl py-4 flex-row items-center justify-center mb-3"
-            style={{ shadowColor: "#6366f1", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}
+            style={{
+              backgroundColor: "#4f46e5", borderRadius: 999, paddingVertical: 16,
+              flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 12,
+            }}
           >
             <QrCode size={20} color="white" />
-            <Text className="text-white font-bold text-base ml-2">Validar retirada por QR</Text>
+            <Text style={{ color: "white", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Validar retirada por QR</Text>
           </TouchableOpacity>
         )}
 
@@ -328,44 +362,58 @@ export default function PackageDetailScreen() {
           <TouchableOpacity
             onPress={openSignaturePad}
             disabled={statusMutation.isPending}
-            className="bg-gray-900 border-2 border-indigo-800 rounded-2xl py-4 flex-row items-center justify-center mb-3"
+            style={{
+              backgroundColor: "#1a1a1a", borderWidth: 2, borderColor: "#4f46e5",
+              borderRadius: 999, paddingVertical: 16,
+              flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 12,
+            }}
           >
             <PenTool size={20} color="#a78bfa" />
-            <Text className="text-violet-400 font-bold text-base ml-2">Retirada com assinatura</Text>
+            <Text style={{ color: "#a78bfa", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Retirada com assinatura</Text>
           </TouchableOpacity>
         )}
 
         {/* Status actions */}
-        <View className="gap-3">
+        <View style={{ gap: 12 }}>
           {pkg.status !== "DELIVERED" && (
             <TouchableOpacity
               onPress={() => confirmStatus("DELIVERED")}
               disabled={statusMutation.isPending}
-              className="bg-primary-500 rounded-2xl py-4 flex-row items-center justify-center"
-              style={{ shadowColor: "#f97316", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}
+              style={{
+                backgroundColor: "#f97316", borderRadius: 999, paddingVertical: 16,
+                flexDirection: "row", alignItems: "center", justifyContent: "center",
+              }}
             >
               <CheckCircle2 size={20} color="white" />
-              <Text className="text-white font-bold text-base ml-2">Marcar como Entregue</Text>
+              <Text style={{ color: "white", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Marcar como Entregue</Text>
             </TouchableOpacity>
           )}
           {pkg.status !== "RETURNED" && (
             <TouchableOpacity
               onPress={() => confirmStatus("RETURNED")}
               disabled={statusMutation.isPending}
-              className="bg-gray-900 border-2 border-red-900 rounded-2xl py-4 flex-row items-center justify-center"
+              style={{
+                backgroundColor: "#1a1a1a", borderWidth: 2, borderColor: "#3a2a2a",
+                borderRadius: 999, paddingVertical: 16,
+                flexDirection: "row", alignItems: "center", justifyContent: "center",
+              }}
             >
               <RotateCcw size={20} color="#f87171" />
-              <Text className="text-red-400 font-bold text-base ml-2">Devolver</Text>
+              <Text style={{ color: "#f87171", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Devolver</Text>
             </TouchableOpacity>
           )}
           {pkg.status !== "PENDING" && (
             <TouchableOpacity
               onPress={() => confirmStatus("PENDING")}
               disabled={statusMutation.isPending}
-              className="bg-gray-900 border-2 border-gray-700 rounded-2xl py-4 flex-row items-center justify-center"
+              style={{
+                backgroundColor: "#1a1a1a", borderWidth: 2, borderColor: "#2a2a2a",
+                borderRadius: 999, paddingVertical: 16,
+                flexDirection: "row", alignItems: "center", justifyContent: "center",
+              }}
             >
-              <RotateCcw size={20} color="#9ca3af" />
-              <Text className="text-gray-400 font-bold text-base ml-2">Reverter para Pendente</Text>
+              <RotateCcw size={20} color="#9a9a9a" />
+              <Text style={{ color: "#9a9a9a", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Reverter para Pendente</Text>
             </TouchableOpacity>
           )}
         </View>

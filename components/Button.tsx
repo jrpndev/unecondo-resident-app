@@ -4,6 +4,7 @@ import {
   Text,
   ActivityIndicator,
   TouchableOpacityProps,
+  StyleSheet,
 } from "react-native";
 
 interface Props extends TouchableOpacityProps {
@@ -12,20 +13,28 @@ interface Props extends TouchableOpacityProps {
   variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
 }
 
-const VARIANTS = {
-  primary:   "bg-primary-500",
-  secondary: "bg-gray-100 dark:bg-gray-800",
-  danger:    "bg-red-500",
-  ghost:     "bg-transparent",
-  outline:   "bg-transparent border border-primary-500",
+const BG: Record<string, string> = {
+  primary:   "#f97316",
+  secondary: "#2a2a2a",
+  danger:    "#ef4444",
+  ghost:     "transparent",
+  outline:   "transparent",
 };
 
-const TEXT_VARIANTS = {
-  primary:   "text-white",
-  secondary: "text-gray-700 dark:text-gray-200",
-  danger:    "text-white",
-  ghost:     "text-primary-500",
-  outline:   "text-primary-500",
+const TEXT_COLOR: Record<string, string> = {
+  primary:   "#ffffff",
+  secondary: "#ffffff",
+  danger:    "#ffffff",
+  ghost:     "#f97316",
+  outline:   "#f97316",
+};
+
+const BORDER_COLOR: Record<string, string | undefined> = {
+  primary:   undefined,
+  secondary: undefined,
+  danger:    undefined,
+  ghost:     undefined,
+  outline:   "#f97316",
 };
 
 export function Button({
@@ -33,28 +42,44 @@ export function Button({
   loading,
   variant = "primary",
   disabled,
+  style,
   ...props
 }: Props) {
   return (
     <TouchableOpacity
-      className={`${VARIANTS[variant]} rounded-2xl py-4 items-center justify-center ${
-        disabled || loading ? "opacity-50" : ""
-      }`}
       disabled={disabled || loading}
       activeOpacity={0.8}
+      style={[
+        styles.base,
+        { backgroundColor: BG[variant] },
+        BORDER_COLOR[variant] ? { borderWidth: 2, borderColor: BORDER_COLOR[variant] } : null,
+        (disabled || loading) ? styles.disabled : null,
+        style as any,
+      ]}
       {...props}
     >
       {loading ? (
-        <ActivityIndicator
-          color={
-            variant === "primary" || variant === "danger" ? "white" : "#f97316"
-          }
-        />
+        <ActivityIndicator color={variant === "primary" || variant === "danger" ? "#fff" : "#f97316"} />
       ) : (
-        <Text className={`${TEXT_VARIANTS[variant]} font-bold text-base`}>
-          {title}
-        </Text>
+        <Text style={[styles.text, { color: TEXT_COLOR[variant] }]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  base: {
+    borderRadius: 999,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 0,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  disabled: {
+    opacity: 0.4,
+  },
+});

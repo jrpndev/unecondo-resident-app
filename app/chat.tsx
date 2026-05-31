@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, Platform, StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft, Send, MessageCircle } from "lucide-react-native";
 import { getChatThread, sendChatMessage, markChatRead, ChatMessage } from "../lib/chat";
 import { useAuthStore } from "../store/auth";
-
-// The admin user ID is stored per-condo. We'll fetch it from the condo info or
-// use a known endpoint to find the síndico / admin of the condo.
-// For now, the resident chats with the condo's primary CONDO_ADMIN or ADMIN user.
-// We discover them by calling GET /residents (condo managers) from the condo context.
 import { api } from "../lib/api";
 
 export default function ChatScreen() {
@@ -31,12 +26,8 @@ export default function ChatScreen() {
   useEffect(() => {
     (async () => {
       try {
-        // Find the condo admin / síndico
         const condoId = user?.condoId;
         if (!condoId) { setLoading(false); return; }
-        const res = await api.get(`/condos/${condoId}`);
-        const condo = res.data?.data ?? res.data;
-        // Find managers via /auth/users
         const usersRes = await api.get("/auth/users", { params: { condoId } });
         const users: any[] = usersRes.data?.data ?? usersRes.data ?? [];
         const admin = users.find(u => u.role === "CONDO_ADMIN" || u.role === "ADMIN");
@@ -48,7 +39,7 @@ export default function ChatScreen() {
           await markChatRead(admin.id);
         }
       } catch {
-        // no admin found, show empty state
+        // no admin found
       } finally {
         setLoading(false);
       }
@@ -84,43 +75,46 @@ export default function ChatScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1 bg-gray-950" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center px-4 py-4 border-b border-gray-800">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1.5 rounded-xl bg-gray-800 active:opacity-70">
-          <ArrowLeft size={18} color="white" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[styles.root, { paddingTop: insets.top }]}
+    >
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ArrowLeft size={18} color="#ffffff" />
         </TouchableOpacity>
-        <View className="w-9 h-9 bg-primary-900/40 rounded-full items-center justify-center mr-2">
-          <Text className="text-primary-400 text-sm font-bold">{adminName.charAt(0).toUpperCase()}</Text>
+        <View style={styles.adminAvatar}>
+          <Text style={styles.adminAvatarText}>{adminName.charAt(0).toUpperCase()}</Text>
         </View>
-        <View className="flex-1">
-          <Text className="text-white text-sm font-bold">{adminName}</Text>
-          <Text className="text-gray-500 text-xs">Síndico / Administração</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.adminName}>{adminName}</Text>
+          <Text style={styles.adminRole}>Síndico / Administração</Text>
         </View>
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center"><ActivityIndicator color="#f97316" /></View>
+        <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : !adminUserId ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <MessageCircle size={48} color="#374151" />
-          <Text className="text-gray-500 text-base font-semibold mt-4 text-center">Administração indisponível</Text>
+        <View style={styles.center}>
+          <MessageCircle size={52} color="#2a2a2a" />
+          <Text style={styles.emptyTitle}>Administração indisponível</Text>
         </View>
       ) : (
         <>
-          <ScrollView ref={scrollRef} className="flex-1 px-4" contentContainerStyle={{ paddingVertical: 16, gap: 8 }}>
+          <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={styles.messages}>
             {messages.length === 0 && (
-              <View className="flex-1 items-center justify-center py-12">
-                <MessageCircle size={40} color="#374151" />
-                <Text className="text-gray-600 text-sm mt-3">Inicie uma conversa</Text>
+              <View style={styles.center}>
+                <MessageCircle size={40} color="#2a2a2a" />
+                <Text style={styles.emptySub}>Inicie uma conversa</Text>
               </View>
             )}
             {messages.map(msg => {
               const isMine = msg.fromId === user?.id;
               return (
-                <View key={msg.id} className={`flex-row ${isMine ? "justify-end" : "justify-start"}`}>
-                  <View className={`max-w-[78%] rounded-2xl px-3 py-2.5 ${isMine ? "bg-primary-600 rounded-tr-sm" : "bg-gray-800 rounded-tl-sm"}`}>
-                    <Text className="text-white text-sm">{msg.body}</Text>
-                    <Text className={`text-[10px] mt-1 ${isMine ? "text-white/60" : "text-gray-500"}`}>
+                <View key={msg.id} style={[styles.msgRow, isMine ? styles.msgRowMine : styles.msgRowTheirs]}>
+                  <View style={[styles.bubble, isMine ? styles.bubbleMine : styles.bubbleTheirs]}>
+                    <Text style={styles.bubbleText}>{msg.body}</Text>
+                    <Text style={[styles.bubbleTime, { color: isMine ? "rgba(255,255,255,0.5)" : "#535353" }]}>
                       {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                     </Text>
                   </View>
@@ -129,15 +123,21 @@ export default function ChatScreen() {
             })}
           </ScrollView>
 
-          <View className="px-4 flex-row gap-2 border-t border-gray-800 py-3" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
-            <TextInput value={message} onChangeText={setMessage}
+          <View style={[styles.inputBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+            <TextInput
+              value={message}
+              onChangeText={setMessage}
               placeholder="Mensagem..."
-              placeholderTextColor="#6b7280"
-              className="flex-1 bg-gray-900 border border-gray-700 text-white rounded-2xl px-4 py-2.5 text-sm"
-              multiline />
-            <TouchableOpacity onPress={handleSend} disabled={!message.trim() || sending}
-              className="w-11 h-11 bg-primary-500 rounded-xl items-center justify-center active:opacity-70 self-end">
-              <Send size={18} color="white" />
+              placeholderTextColor="#535353"
+              style={styles.messageInput}
+              multiline
+            />
+            <TouchableOpacity
+              onPress={handleSend}
+              disabled={!message.trim() || sending}
+              style={[styles.sendBtn, (!message.trim() || sending) && { opacity: 0.4 }]}
+            >
+              <Send size={18} color="#ffffff" />
             </TouchableOpacity>
           </View>
         </>
@@ -145,3 +145,54 @@ export default function ChatScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#111111" },
+  header: {
+    flexDirection: "row", alignItems: "center",
+    paddingHorizontal: 20, paddingVertical: 14,
+    borderBottomWidth: 1, borderBottomColor: "#2a2a2a", gap: 12,
+  },
+  backBtn: {
+    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    borderRadius: 18, alignItems: "center", justifyContent: "center",
+  },
+  adminAvatar: {
+    width: 38, height: 38, backgroundColor: "#f9731618",
+    borderRadius: 19, borderWidth: 1, borderColor: "#f9731440",
+    alignItems: "center", justifyContent: "center",
+  },
+  adminAvatarText: { fontSize: 15, fontWeight: "700", color: "#f97316" },
+  adminName: { fontSize: 14, fontWeight: "700", color: "#ffffff" },
+  adminRole: { fontSize: 11, color: "#535353", marginTop: 1 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 24 },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
+  emptySub: { fontSize: 13, color: "#535353" },
+  messages: { padding: 16, gap: 10, flexGrow: 1 },
+  msgRow: { flexDirection: "row" },
+  msgRowMine: { justifyContent: "flex-end" },
+  msgRowTheirs: { justifyContent: "flex-start" },
+  bubble: { maxWidth: "78%", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
+  bubbleMine: { backgroundColor: "#f97316", borderBottomRightRadius: 4 },
+  bubbleTheirs: {
+    backgroundColor: "#1a1a1a", borderWidth: 1,
+    borderColor: "#2a2a2a", borderBottomLeftRadius: 4,
+  },
+  bubbleText: { color: "#ffffff", fontSize: 14, lineHeight: 20 },
+  bubbleTime: { fontSize: 10, marginTop: 4 },
+  inputBar: {
+    flexDirection: "row", alignItems: "flex-end",
+    paddingHorizontal: 16, paddingTop: 12,
+    borderTopWidth: 1, borderTopColor: "#2a2a2a",
+    gap: 10, backgroundColor: "#111111",
+  },
+  messageInput: {
+    flex: 1, backgroundColor: "#1a1a1a", borderWidth: 1, borderColor: "#2a2a2a",
+    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+    color: "#ffffff", fontSize: 14, maxHeight: 100,
+  },
+  sendBtn: {
+    width: 44, height: 44, backgroundColor: "#f97316",
+    borderRadius: 22, alignItems: "center", justifyContent: "center",
+  },
+});

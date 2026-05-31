@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator, StyleSheet } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { Search, Package2 } from "lucide-react-native";
@@ -27,48 +27,50 @@ export default function PackagesScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <View style={styles.loading}>
         <ActivityIndicator color="#f97316" size="large" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <ScreenHeader title="Minhas Encomendas" />
-      <View className="px-4 pb-3 bg-gray-50 dark:bg-gray-900">
-        <View className="flex-row items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl px-3 mb-3">
-          <Search size={16} color="#9ca3af" />
+    <View style={styles.root}>
+      <ScreenHeader title="Encomendas" />
+
+      {/* Search + filters */}
+      <View style={styles.filterArea}>
+        <View style={styles.searchBar}>
+          <Search size={15} color="#535353" />
           <TextInput
-            className="flex-1 py-3 px-2 text-gray-900 dark:text-white text-sm"
+            style={styles.searchInput}
             placeholder="Buscar código, origem..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#535353"
             value={search}
             onChangeText={setSearch}
           />
         </View>
-
-        <View className="flex-row gap-2">
-          {STATUS_FILTERS.map((f) => (
-            <TouchableOpacity
-              key={f.label}
-              onPress={() => setStatusFilter(f.value)}
-              className={`px-3 py-1.5 rounded-full ${
-                statusFilter === f.value ? "bg-orange-500" : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-              }`}
-            >
-              <Text className={`text-xs font-semibold ${statusFilter === f.value ? "text-white" : "text-gray-500 dark:text-gray-400"}`}>
-                {f.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.chips}>
+          {STATUS_FILTERS.map((f) => {
+            const active = statusFilter === f.value;
+            return (
+              <TouchableOpacity
+                key={f.label}
+                onPress={() => setStatusFilter(f.value)}
+                style={[styles.chip, active ? styles.chipActive : styles.chipInactive]}
+              >
+                <Text style={[styles.chipText, active ? styles.chipTextActive : styles.chipTextInactive]}>
+                  {f.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
 
       <FlatList
         data={data}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 100 }}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <PackageCard
             pkg={item}
@@ -77,9 +79,9 @@ export default function PackagesScreen() {
           />
         )}
         ListEmptyComponent={
-          <View className="items-center justify-center py-20">
-            <Package2 size={40} color="#d1d5db" />
-            <Text className="text-gray-400 mt-3 text-base">Nenhuma encomenda encontrada</Text>
+          <View style={styles.empty}>
+            <Package2 size={48} color="#2a2a2a" />
+            <Text style={styles.emptyText}>Nenhuma encomenda encontrada</Text>
           </View>
         }
         refreshControl={
@@ -89,3 +91,83 @@ export default function PackagesScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#111111",
+  },
+  loading: {
+    flex: 1,
+    backgroundColor: "#111111",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  filterArea: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+    backgroundColor: "#111111",
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    marginBottom: 12,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: "#ffffff",
+  },
+  chips: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  chipActive: {
+    backgroundColor: "#ffffff",
+  },
+  chipInactive: {
+    backgroundColor: "#1a1a1a",
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  chipTextActive: {
+    color: "#111111",
+  },
+  chipTextInactive: {
+    color: "#9a9a9a",
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingTop: 4,
+    paddingBottom: 100,
+  },
+  empty: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 80,
+    gap: 12,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: "#535353",
+    fontWeight: "500",
+  },
+});

@@ -48,13 +48,13 @@ export default function LoginScreen() {
   const router      = useRouter();
   const { setAuth } = useAuthStore();
 
-  const [mode, setMode]                 = useState<ViewMode>("loading");
-  const [loading, setLoading]           = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [bioAvailable, setBioAvailable] = useState(false);
-  const [savedEmail, setSavedEmail]     = useState("");
+  const [mode, setMode]                   = useState<ViewMode>("loading");
+  const [loading, setLoading]             = useState(false);
+  const [showPassword, setShowPassword]   = useState(false);
+  const [bioAvailable, setBioAvailable]   = useState(false);
+  const [savedEmail, setSavedEmail]       = useState("");
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
-  const autoTriggered                   = useRef(false);
+  const autoTriggered                     = useRef(false);
 
   const {
     control,
@@ -92,7 +92,7 @@ export default function LoginScreen() {
 
   async function doLogin(identifier: string, password: string): Promise<AuthResponse> {
     const result = await login(identifier, password);
-    if (result.user.role === "ADMIN" || result.user.role === "CONDO_ADMIN") {
+    if (result.user.role === "ADMIN") {
       throw new Error("ADMIN_BLOCKED");
     }
     await setAuth(result.access_token, result.user, result.refresh_token);
@@ -113,7 +113,7 @@ export default function LoginScreen() {
       navigateAfterLogin(result.user);
     } catch (err: any) {
       if (err?.message === "ADMIN_BLOCKED") {
-        Toast.show({ type: "error", text1: "Acesso negado", text2: "Administradores e síndicos devem usar o painel web" });
+        Toast.show({ type: "error", text1: "Acesso negado", text2: "Administradores devem usar o painel web" });
       } else {
         const message = err?.response?.data?.message || err?.message || "Erro ao fazer login";
         Toast.show({ type: "error", text1: "Erro ao trocar conta", text2: message });
@@ -149,7 +149,7 @@ export default function LoginScreen() {
       navigateAfterLogin(result.user);
     } catch (err: any) {
       if (err?.message === "ADMIN_BLOCKED") {
-        Toast.show({ type: "error", text1: "Acesso negado", text2: "Administradores e síndicos devem usar o painel web" });
+        Toast.show({ type: "error", text1: "Acesso negado", text2: "Administradores devem usar o painel web" });
       } else {
         await disableBiometric();
         if (savedEmail) setValue("identifier", savedEmail);
@@ -186,7 +186,7 @@ export default function LoginScreen() {
       }
     } catch (err: any) {
       if (err?.message === "ADMIN_BLOCKED") {
-        Toast.show({ type: "error", text1: "Acesso negado", text2: "Administradores e síndicos devem usar o painel web" });
+        Toast.show({ type: "error", text1: "Acesso negado", text2: "Administradores devem usar o painel web" });
       } else {
         const message = err?.response?.data?.message || err?.message || "Erro ao fazer login";
         Toast.show({ type: "error", text1: "Erro", text2: message });
@@ -203,75 +203,69 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-gray-950"
+      style={styles.root}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Orange header */}
-        <View className="bg-primary-500 pt-20 pb-12 px-6 items-center rounded-b-[40px]">
-          <View className="w-20 h-20 bg-white/20 rounded-3xl items-center justify-center mb-4">
-            <Package2 size={40} color="white" />
+        {/* Hero */}
+        <View style={styles.hero}>
+          <View style={styles.logoWrap}>
+            <Package2 size={38} color="#ffffff" />
           </View>
-          <Text className="text-white text-3xl font-bold">Unecondo</Text>
-          <Text className="text-white/70 text-sm mt-1">Gestão Inteligente de Encomendas</Text>
+          <Text style={styles.heroTitle}>Unecondo</Text>
+          <Text style={styles.heroSub}>Gestão Inteligente de Condomínios</Text>
         </View>
 
-        <View className="flex-1 px-6 pt-8">
+        <View style={styles.body}>
 
           {mode === "loading" && <View style={{ height: 120 }} />}
 
           {mode === "biometric" && (
             <>
-              <Text className="text-white text-2xl font-bold mb-1">Bem-vindo de volta</Text>
-              <Text className="text-gray-400 text-sm mb-8">Use sua biometria para entrar</Text>
+              <Text style={styles.greeting}>Bem-vindo de volta</Text>
+              <Text style={styles.sub}>Use sua biometria para entrar</Text>
 
-              <View className="items-center py-6">
-                <Text className="text-gray-400 text-sm mb-8">{savedEmail}</Text>
+              <View style={styles.bioCenter}>
+                <Text style={styles.bioEmail}>{savedEmail}</Text>
 
                 <TouchableOpacity
                   onPress={triggerBiometric}
                   disabled={loading}
-                  style={[styles.bioButton, loading && styles.bioButtonLoading]}
+                  style={[styles.bioBtn, loading && styles.bioBtnLoading]}
                   activeOpacity={0.8}
                 >
-                  <Fingerprint size={46} color="white" />
+                  <Fingerprint size={44} color="#ffffff" />
                 </TouchableOpacity>
 
-                <Text className="text-gray-500 text-sm mt-5 font-medium">
+                <Text style={styles.bioHint}>
                   {loading ? "Autenticando..." : "Toque para entrar"}
                 </Text>
               </View>
 
-              <View className="flex-row items-center my-4">
-                <View className="flex-1 h-px bg-gray-800" />
-                <Text className="text-gray-600 text-xs mx-3">ou</Text>
-                <View className="flex-1 h-px bg-gray-800" />
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>ou</Text>
+                <View style={styles.dividerLine} />
               </View>
 
-              <TouchableOpacity
-                onPress={switchToPassword}
-                disabled={loading}
-                className="py-3 items-center"
-              >
-                <Text className="text-primary-500 font-bold text-sm">Usar senha</Text>
+              <TouchableOpacity onPress={switchToPassword} disabled={loading} style={styles.switchBtn}>
+                <Text style={styles.switchBtnText}>Usar senha</Text>
               </TouchableOpacity>
             </>
           )}
 
           {mode === "password" && (
             <>
-              <Text className="text-white text-2xl font-bold mb-1">Bem-vindo</Text>
-              <Text className="text-gray-400 text-sm mb-8">Acesso exclusivo para moradores</Text>
+              <Text style={styles.greeting}>Bem-vindo</Text>
+              <Text style={styles.sub}>Acesso para moradores e síndicos</Text>
 
               {savedAccounts.length > 0 && (
-                <View className="mb-6">
-                  <Text className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3">
-                    Contas salvas
-                  </Text>
+                <View style={styles.savedSection}>
+                  <Text style={styles.savedLabel}>CONTAS SALVAS</Text>
                   {savedAccounts.map((account) => {
                     const initials = account.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase();
                     return (
@@ -294,15 +288,15 @@ export default function LoginScreen() {
                           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                           style={{ padding: 4 }}
                         >
-                          <X size={14} color="#6b7280" />
+                          <X size={14} color="#535353" />
                         </TouchableOpacity>
                       </TouchableOpacity>
                     );
                   })}
-                  <View className="flex-row items-center my-4">
-                    <View className="flex-1 h-px bg-gray-800" />
-                    <Text className="text-gray-600 text-xs mx-3">ou entre com outra conta</Text>
-                    <View className="flex-1 h-px bg-gray-800" />
+                  <View style={styles.divider}>
+                    <View style={styles.dividerLine} />
+                    <Text style={styles.dividerText}>ou entre com outra conta</Text>
+                    <View style={styles.dividerLine} />
                   </View>
                 </View>
               )}
@@ -339,12 +333,12 @@ export default function LoginScreen() {
                     />
                     <TouchableOpacity
                       onPress={() => setShowPassword((p) => !p)}
-                      className="absolute right-4 top-9"
+                      style={styles.eyeBtn}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
                       {showPassword
-                        ? <EyeOff size={20} color="#6b7280" />
-                        : <Eye size={20} color="#6b7280" />}
+                        ? <EyeOff size={20} color="#535353" />
+                        : <Eye size={20} color="#535353" />}
                     </TouchableOpacity>
                   </View>
                 )}
@@ -356,11 +350,11 @@ export default function LoginScreen() {
                 <TouchableOpacity
                   onPress={() => { autoTriggered.current = false; setMode("biometric"); }}
                   disabled={loading}
-                  className="py-3 items-center mt-2"
+                  style={styles.switchBtn}
                 >
-                  <View className="flex-row items-center gap-1.5">
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                     <Fingerprint size={16} color="#f97316" />
-                    <Text className="text-primary-500 font-bold text-sm">Usar biometria</Text>
+                    <Text style={styles.switchBtnText}>Usar biometria</Text>
                   </View>
                 </TouchableOpacity>
               )}
@@ -373,7 +367,68 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  bioButton: {
+  root: {
+    flex: 1,
+    backgroundColor: "#111111",
+  },
+  hero: {
+    paddingTop: 80,
+    paddingBottom: 48,
+    paddingHorizontal: 24,
+    alignItems: "center",
+  },
+  logoWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#f97316",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    shadowColor: "#f97316",
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 16,
+  },
+  heroTitle: {
+    fontSize: 34,
+    fontWeight: "800",
+    color: "#ffffff",
+    letterSpacing: -0.5,
+  },
+  heroSub: {
+    fontSize: 14,
+    color: "#9a9a9a",
+    marginTop: 6,
+    textAlign: "center",
+  },
+  body: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  greeting: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#ffffff",
+    marginBottom: 4,
+  },
+  sub: {
+    fontSize: 14,
+    color: "#9a9a9a",
+    marginBottom: 28,
+  },
+  bioCenter: {
+    alignItems: "center",
+    paddingVertical: 24,
+  },
+  bioEmail: {
+    fontSize: 14,
+    color: "#9a9a9a",
+    marginBottom: 32,
+  },
+  bioBtn: {
     width: 96,
     height: 96,
     borderRadius: 48,
@@ -382,46 +437,94 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     shadowColor: "#f97316",
     shadowOpacity: 0.45,
-    shadowRadius: 18,
+    shadowRadius: 20,
     shadowOffset: { width: 0, height: 6 },
-    elevation: 12,
+    elevation: 14,
   },
-  bioButtonLoading: {
+  bioBtnLoading: {
     backgroundColor: "#fdba74",
     elevation: 4,
+  },
+  bioHint: {
+    fontSize: 14,
+    color: "#535353",
+    marginTop: 20,
+    fontWeight: "500",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#2a2a2a",
+  },
+  dividerText: {
+    fontSize: 12,
+    color: "#535353",
+    marginHorizontal: 12,
+  },
+  switchBtn: {
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  switchBtnText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#f97316",
+  },
+  savedSection: {
+    marginBottom: 8,
+  },
+  savedLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#535353",
+    letterSpacing: 1.5,
+    marginBottom: 12,
   },
   accountChip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#111827",
+    backgroundColor: "#1a1a1a",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: "#2a2a2a",
     padding: 12,
     marginBottom: 8,
   },
   accountAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#7c2d12",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#f9731620",
+    borderWidth: 1,
+    borderColor: "#f9731640",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   accountAvatarText: {
-    color: "#fdba74",
-    fontSize: 13,
+    color: "#f97316",
+    fontSize: 14,
     fontWeight: "700",
   },
   accountName: {
-    color: "#f9fafb",
+    color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",
   },
   accountEmail: {
-    color: "#6b7280",
+    color: "#535353",
     fontSize: 12,
     marginTop: 1,
+  },
+  eyeBtn: {
+    position: "absolute",
+    right: 16,
+    top: 36,
   },
 });

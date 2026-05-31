@@ -69,6 +69,16 @@ export async function updateReservationStatus(
   return extractData<Reservation>(response);
 }
 
+export async function rescheduleReservation(id: string, data: {
+  date: string;
+  startTime: string;
+  endTime: string;
+  notes?: string;
+}): Promise<Reservation> {
+  const response = await api.patch(`/reservations/${id}`, data);
+  return extractData<Reservation>(response);
+}
+
 export async function getReservedDates(spaceId: string, year: number, month: number): Promise<string[]> {
   const response = await api.get(`/spaces/${spaceId}/reserved-dates`, { params: { year, month } });
   return extractData<string[]>(response);

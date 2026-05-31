@@ -7,6 +7,7 @@ export interface Announcement {
   body: string;
   imageUrl?: string;
   isPinned: boolean;
+  startsAt?: string;
   expiresAt?: string;
   createdById: string;
   createdAt: string;
@@ -26,8 +27,22 @@ export async function createAnnouncement(data: {
   title: string;
   body: string;
   isPinned?: boolean;
+  startsAt?: string;
   expiresAt?: string;
+  displayDurationDays?: number;
 }): Promise<Announcement> {
   const response = await api.post("/announcements", data);
+  return extractData<Announcement>(response);
+}
+
+export async function updateAnnouncement(id: string, data: {
+  title?: string;
+  body?: string;
+  isPinned?: boolean;
+  startsAt?: string;
+  expiresAt?: string;
+  displayDurationDays?: number;
+}): Promise<Announcement> {
+  const response = await api.patch(`/announcements/${id}`, data);
   return extractData<Announcement>(response);
 }

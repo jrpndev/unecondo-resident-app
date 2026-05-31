@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from "react";
 import {
   View, Text, FlatList, RefreshControl, TouchableOpacity,
-  ActivityIndicator, Modal, TextInput, ScrollView, Alert, Clipboard,
+  ActivityIndicator, Modal, TextInput, ScrollView, Alert, Clipboard, StyleSheet,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarCheck, Copy, Check, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react-native";
+import { CalendarCheck, Copy, Check, AlertCircle, ChevronLeft, ChevronRight, RotateCcw, X } from "lucide-react-native";
 import {
   getSpaces, getMyReservations, createReservation, getReservedDates,
-  updateReservationStatus, type Space, type Reservation, type ReservationPaymentStatus,
+  updateReservationStatus, rescheduleReservation,
+  type Space, type Reservation, type ReservationPaymentStatus,
 } from "../../lib/reservations";
 import { useAuthStore } from "../../store/auth";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -32,7 +33,6 @@ const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julh
 function fmtDate(d: string) {
   return new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 }
-
 function fmtPrice(p?: number | null) {
   if (!p) return "Gratuito";
   return p.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -46,9 +46,9 @@ function CopyPix({ text }: { text: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <TouchableOpacity onPress={doCopy} className="flex-row items-center gap-1 mt-2 py-1">
+    <TouchableOpacity onPress={doCopy} style={styles.copyRow}>
       {copied ? <Check size={14} color="#22c55e" /> : <Copy size={14} color="#f97316" />}
-      <Text className={`text-xs font-semibold ${copied ? "text-green-500" : "text-orange-500"}`}>
+      <Text style={[styles.copyText, copied && { color: "#22c55e" }]}>
         {copied ? "Copiado!" : "Copiar chave PIX"}
       </Text>
     </TouchableOpacity>
@@ -56,67 +56,46 @@ function CopyPix({ text }: { text: string }) {
 }
 
 function CalendarPicker({
-  selected,
-  onSelect,
-  reservedDates,
-  viewYear,
-  viewMonth,
-  onMonthChange,
+  selected, onSelect, reservedDates, viewYear, viewMonth, onMonthChange,
 }: {
   selected: string;
   onSelect: (date: string) => void;
   reservedDates: string[];
   viewYear: number;
-  viewMonth: number; // 0-indexed
+  viewMonth: number;
   onMonthChange: (year: number, month: number) => void;
 }) {
   const today = new Date();
   const reserved = useMemo(() => new Set(reservedDates), [reservedDates]);
-
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-
-  const prevMonth = () => {
-    if (viewMonth === 0) onMonthChange(viewYear - 1, 11);
-    else onMonthChange(viewYear, viewMonth - 1);
-  };
-  const nextMonth = () => {
-    if (viewMonth === 11) onMonthChange(viewYear + 1, 0);
-    else onMonthChange(viewYear, viewMonth + 1);
-  };
-
+  const prevMonth = () => viewMonth === 0 ? onMonthChange(viewYear - 1, 11) : onMonthChange(viewYear, viewMonth - 1);
+  const nextMonth = () => viewMonth === 11 ? onMonthChange(viewYear + 1, 0) : onMonthChange(viewYear, viewMonth + 1);
   const cells: (number | null)[] = [...Array(firstDay).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <View className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-3 mb-3">
-      {/* Header */}
-      <View className="flex-row items-center justify-between mb-3">
-        <TouchableOpacity onPress={prevMonth} className="p-1">
-          <ChevronLeft size={18} color="#6b7280" />
+    <View style={styles.calendar}>
+      <View style={styles.calHeader}>
+        <TouchableOpacity onPress={prevMonth} style={styles.calNavBtn}>
+          <ChevronLeft size={18} color="#9a9a9a" />
         </TouchableOpacity>
-        <Text className="font-semibold text-gray-900 dark:text-white text-sm">
-          {MONTH_NAMES[viewMonth]} {viewYear}
-        </Text>
-        <TouchableOpacity onPress={nextMonth} className="p-1">
-          <ChevronRight size={18} color="#6b7280" />
+        <Text style={styles.calMonth}>{MONTH_NAMES[viewMonth]} {viewYear}</Text>
+        <TouchableOpacity onPress={nextMonth} style={styles.calNavBtn}>
+          <ChevronRight size={18} color="#9a9a9a" />
         </TouchableOpacity>
       </View>
-
-      {/* Weekday labels */}
-      <View className="flex-row mb-1">
+      <View style={styles.calWeekdays}>
         {WEEKDAYS.map((d, i) => (
-          <View key={i} className="flex-1 items-center">
-            <Text className="text-xs text-gray-400 font-medium">{d}</Text>
+          <View key={i} style={{ flex: 1, alignItems: "center" }}>
+            <Text style={styles.calWeekday}>{d}</Text>
           </View>
         ))}
       </View>
-
-      {/* Days grid */}
       {Array.from({ length: cells.length / 7 }, (_, row) => (
-        <View key={row} className="flex-row">
+        <View key={row} style={{ flexDirection: "row" }}>
           {cells.slice(row * 7, row * 7 + 7).map((day, col) => {
-            if (!day) return <View key={col} className="flex-1 aspect-square" />;
+            if (!day) return <View key={col} style={{ flex: 1, aspectRatio: 1 }} />;
             const mm = String(viewMonth + 1).padStart(2, "0");
             const dd = String(day).padStart(2, "0");
             const dateStr = `${viewYear}-${mm}-${dd}`;
@@ -124,49 +103,38 @@ function CalendarPicker({
             const isPast = new Date(dateStr) < new Date(today.toISOString().slice(0, 10));
             const isSelected = selected === dateStr;
             const disabled = isReserved || isPast;
-
             return (
               <TouchableOpacity
                 key={col}
                 onPress={() => !disabled && onSelect(dateStr)}
                 disabled={disabled}
-                className="flex-1 items-center justify-center py-1"
+                style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 4 }}
               >
-                <View
-                  className="w-8 h-8 rounded-full items-center justify-center"
-                  style={{
-                    backgroundColor: isSelected ? "#f97316" : isReserved ? "#fee2e2" : "transparent",
-                  }}
-                >
-                  <Text
-                    className="text-xs font-medium"
-                    style={{
-                      color: isSelected
-                        ? "#fff"
-                        : isReserved
-                        ? "#ef4444"
-                        : isPast
-                        ? "#d1d5db"
-                        : "#111827",
-                    }}
-                  >
-                    {day}
-                  </Text>
+                <View style={[
+                  styles.calDay,
+                  isSelected && styles.calDaySelected,
+                  isReserved && styles.calDayReserved,
+                ]}>
+                  <Text style={[
+                    styles.calDayText,
+                    isSelected && { color: "#ffffff" },
+                    isReserved && { color: "#f87171" },
+                    isPast && { color: "#3a3a3a" },
+                  ]}>{day}</Text>
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
       ))}
-
-      <View className="flex-row items-center gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-        <View className="flex-row items-center gap-1">
-          <View className="w-3 h-3 rounded-full bg-orange-500" />
-          <Text className="text-xs text-gray-400">Selecionado</Text>
+      <View style={styles.calLegend}>
+        <View style={styles.calLegendItem}>
+          <View style={[styles.calLegendDot, { backgroundColor: "#f97316" }]} />
+          <Text style={styles.calLegendText}>Selecionado</Text>
         </View>
-        <View className="flex-row items-center gap-1">
-          <View className="w-3 h-3 rounded-full bg-red-100" />
-          <Text className="text-xs text-gray-400">Ocupado</Text>
+        <View style={styles.calLegendItem}>
+          <View style={[styles.calLegendDot, { backgroundColor: "#ef444430" }]} />
+          <Text style={styles.calLegendText}>Ocupado</Text>
         </View>
       </View>
     </View>
@@ -182,6 +150,7 @@ export default function ReservationsScreen() {
   const [tab, setTab] = useState<"spaces" | "mine">("spaces");
   const [reserveModal, setReserveModal] = useState<Space | null>(null);
   const [pixModal, setPixModal] = useState<Reservation | null>(null);
+  const [rescheduleTarget, setRescheduleTarget] = useState<Reservation | null>(null);
   const [form, setForm] = useState({ date: "", startTime: "", endTime: "", notes: "" });
   const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD">("PIX");
   const [cardHolderName, setCardHolderName] = useState("");
@@ -189,10 +158,9 @@ export default function ReservationsScreen() {
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCcv, setCardCcv] = useState("");
 
-  // calMonth is 0-indexed (Jan=0) matching the calendar component; API receives calMonth+1
   const today = new Date();
   const [calYear, setCalYear] = useState(today.getFullYear());
-  const [calMonth, setCalMonth] = useState(today.getMonth()); // 0-indexed
+  const [calMonth, setCalMonth] = useState(today.getMonth());
 
   const { data: spaces = [], isLoading: loadSpaces, refetch: refetchSpaces, isRefetching: refSpaces } = useQuery({
     queryKey: ["spaces", condoId],
@@ -205,10 +173,12 @@ export default function ReservationsScreen() {
     enabled: tab === "mine" && isResident,
   });
 
+  const activeSpaceId = rescheduleTarget?.spaceId ?? reserveModal?.id;
+
   const { data: reservedDates = [] } = useQuery({
-    queryKey: ["reserved-dates", reserveModal?.id, calYear, calMonth],
-    queryFn: () => getReservedDates(reserveModal!.id, calYear, calMonth + 1),
-    enabled: !!reserveModal,
+    queryKey: ["reserved-dates", activeSpaceId, calYear, calMonth],
+    queryFn: () => getReservedDates(activeSpaceId!, calYear, calMonth + 1),
+    enabled: !!activeSpaceId,
   });
 
   const create = useMutation({
@@ -231,13 +201,27 @@ export default function ReservationsScreen() {
       setForm({ date: "", startTime: "", endTime: "", notes: "" });
       setPaymentMethod("PIX");
       setCardHolderName(""); setCardNumberDisplay(""); setCardExpiry(""); setCardCcv("");
-      if (data.pixCopiaECola) {
-        setPixModal(data);
-      } else if (data.paymentStatus === "PAID") {
-        Alert.alert("Pagamento confirmado!", "Sua reserva foi confirmada com sucesso.");
-      }
+      if (data.pixCopiaECola) setPixModal(data);
+      else if (data.paymentStatus === "PAID") Alert.alert("Pagamento confirmado!", "Sua reserva foi confirmada com sucesso.");
     },
     onError: (e: any) => Alert.alert("Erro", e?.response?.data?.message ?? "Horário indisponível ou cartão recusado"),
+  });
+
+  const reschedule = useMutation({
+    mutationFn: () => rescheduleReservation(rescheduleTarget!.id, {
+      date: form.date,
+      startTime: form.startTime,
+      endTime: form.endTime,
+      notes: form.notes || undefined,
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["reservations-mine"] });
+      qc.invalidateQueries({ queryKey: ["reserved-dates", rescheduleTarget?.spaceId] });
+      setRescheduleTarget(null);
+      setForm({ date: "", startTime: "", endTime: "", notes: "" });
+      Alert.alert("Reagendado!", "Sua reserva foi reagendada com sucesso.");
+    },
+    onError: (e: any) => Alert.alert("Erro", e?.response?.data?.message ?? "Não foi possível reagendar"),
   });
 
   const cancel = useMutation({
@@ -249,27 +233,37 @@ export default function ReservationsScreen() {
     setForm(f => ({ ...f, date: dateStr }));
     const [y, , m0] = dateStr.split("-").map(Number);
     setCalYear(y);
-    setCalMonth(m0 - 1); // convert from 1-indexed date month to 0-indexed calMonth
+    setCalMonth(m0 - 1);
   };
 
-  // Calendar navigates: receives 0-indexed month
   const handleCalMonthChange = (year: number, month: number) => {
     setCalYear(year);
     setCalMonth(month);
   };
 
+  const openReschedule = (item: Reservation) => {
+    setRescheduleTarget(item);
+    setForm({ date: item.date, startTime: item.startTime, endTime: item.endTime, notes: item.notes ?? "" });
+    const [y, m] = item.date.split("-").map(Number);
+    setCalYear(y);
+    setCalMonth(m - 1);
+  };
+
+  const isBookingActive = !!reserveModal || !!rescheduleTarget;
+
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <View style={styles.root}>
       <ScreenHeader title="Reservas" />
 
-      <View className="flex-row border-b border-gray-200 dark:border-gray-700 px-4">
+      {/* Tabs */}
+      <View style={styles.tabBar}>
         {(["spaces", "mine"] as const).filter(t => t === "spaces" || isResident).map(t => (
           <TouchableOpacity
             key={t}
             onPress={() => setTab(t)}
-            className={`mr-6 pb-2 border-b-2 ${tab === t ? "border-orange-500" : "border-transparent"}`}
+            style={[styles.tabItem, tab === t && styles.tabItemActive]}
           >
-            <Text className={`text-sm font-medium ${tab === t ? "text-orange-600" : "text-gray-500"}`}>
+            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
               {t === "spaces" ? "Espaços" : "Minhas reservas"}
             </Text>
           </TouchableOpacity>
@@ -278,121 +272,131 @@ export default function ReservationsScreen() {
 
       {tab === "spaces" && (
         loadSpaces ? (
-          <View className="flex-1 items-center justify-center"><ActivityIndicator color="#f97316" /></View>
+          <View style={styles.loader}><ActivityIndicator color="#f97316" /></View>
         ) : (
           <FlatList
             data={spaces}
             keyExtractor={s => s.id}
-            contentContainerStyle={{ padding: 16 }}
+            contentContainerStyle={styles.listPad}
             refreshControl={<RefreshControl refreshing={refSpaces} onRefresh={refetchSpaces} tintColor="#f97316" />}
             renderItem={({ item }) => (
-              <View className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-3 shadow-sm">
-                <View className="flex-row items-start justify-between mb-2">
-                  <View className="flex-1 mr-3">
-                    <Text className="font-semibold text-gray-900 dark:text-white">{item.name}</Text>
-                    {item.description && <Text className="text-sm text-gray-500 mt-0.5">{item.description}</Text>}
-                    <View className="flex-row items-center gap-3 mt-1">
-                      {item.capacity ? (
-                        <Text className="text-xs text-gray-400">Até {item.capacity} pessoas</Text>
-                      ) : null}
-                      <Text className={`text-xs font-semibold ${item.price ? "text-orange-500" : "text-green-600"}`}>
-                        {fmtPrice(item.price)}
-                      </Text>
-                    </View>
-                    {item.rules && <Text className="text-xs text-gray-400 italic mt-1">{item.rules}</Text>}
-                  </View>
+              <View style={styles.spaceCard}>
+                <Text style={styles.spaceName}>{item.name}</Text>
+                {item.description && <Text style={styles.spaceDesc}>{item.description}</Text>}
+                <View style={styles.spaceMeta}>
+                  {item.capacity ? <Text style={styles.spaceMetaText}>Até {item.capacity} pessoas</Text> : null}
+                  <Text style={[styles.spaceMetaText, { color: item.price ? "#f97316" : "#22c55e", fontWeight: "700" }]}>
+                    {fmtPrice(item.price)}
+                  </Text>
                 </View>
+                {item.rules && <Text style={styles.spaceRules}>{item.rules}</Text>}
                 {isResident && (
                   <TouchableOpacity
                     onPress={() => {
                       setReserveModal(item);
                       setCalYear(today.getFullYear());
-                      setCalMonth(today.getMonth()); // 0-indexed
+                      setCalMonth(today.getMonth());
                     }}
-                    className="bg-orange-500 rounded-xl py-2 flex-row items-center justify-center gap-2 active:opacity-80"
+                    style={styles.reserveBtn}
                   >
-                    <CalendarCheck size={16} color="#fff" />
-                    <Text className="text-white font-semibold text-sm">Reservar</Text>
+                    <CalendarCheck size={16} color="#ffffff" />
+                    <Text style={styles.reserveBtnText}>Reservar</Text>
                   </TouchableOpacity>
                 )}
               </View>
             )}
-            ListEmptyComponent={<Text className="text-center text-gray-400 py-20">Nenhum espaço disponível</Text>}
+            ListEmptyComponent={<Text style={styles.empty}>Nenhum espaço disponível</Text>}
           />
         )
       )}
 
       {tab === "mine" && (
         loadMine ? (
-          <View className="flex-1 items-center justify-center"><ActivityIndicator color="#f97316" /></View>
+          <View style={styles.loader}><ActivityIndicator color="#f97316" /></View>
         ) : (
           <FlatList
             data={myRes}
             keyExtractor={r => r.id}
-            contentContainerStyle={{ padding: 16 }}
+            contentContainerStyle={styles.listPad}
             refreshControl={<RefreshControl refreshing={refMine} onRefresh={refetchMine} tintColor="#f97316" />}
             renderItem={({ item }) => (
-              <View className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-3 shadow-sm">
-                <View className="flex-row items-start justify-between">
-                  <View className="flex-1">
-                    <Text className="font-semibold text-gray-900 dark:text-white">{item.space?.name}</Text>
-                    <Text className="text-sm text-gray-500 mt-0.5">{fmtDate(item.date)} · {item.startTime} – {item.endTime}</Text>
-                    {item.notes && <Text className="text-xs text-gray-400 italic mt-1">{item.notes}</Text>}
+              <View style={styles.resCard}>
+                <View style={styles.resCardTop}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.resSpace}>{item.space?.name}</Text>
+                    <Text style={styles.resDatetime}>{fmtDate(item.date)} · {item.startTime} – {item.endTime}</Text>
+                    {item.notes && <Text style={styles.resNotes}>{item.notes}</Text>}
                     {item.pixCopiaECola && item.paymentStatus === "PENDING_PAYMENT" && (
-                      <TouchableOpacity
-                        className="flex-row items-center gap-1 mt-1"
-                        onPress={() => setPixModal(item)}
-                      >
+                      <TouchableOpacity style={styles.pixAlert} onPress={() => setPixModal(item)}>
                         <AlertCircle size={12} color="#f97316" />
-                        <Text className="text-xs text-orange-500 font-medium">Ver chave PIX</Text>
+                        <Text style={styles.pixAlertText}>Ver chave PIX</Text>
                       </TouchableOpacity>
                     )}
                   </View>
-                  <View className="items-end gap-1 ml-2">
+                  <View style={{ alignItems: "flex-end", gap: 5 }}>
                     {item.paymentStatus && item.paymentStatus !== "EXEMPT" && (
-                      <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: PAY_COLORS[item.paymentStatus] + "20" }}>
-                        <Text className="text-xs font-medium" style={{ color: PAY_COLORS[item.paymentStatus] }}>
+                      <View style={[styles.statusBadge, { backgroundColor: PAY_COLORS[item.paymentStatus] + "20" }]}>
+                        <Text style={[styles.statusBadgeText, { color: PAY_COLORS[item.paymentStatus] }]}>
                           {PAY_LABELS[item.paymentStatus]}
                         </Text>
                       </View>
                     )}
-                    <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[item.status] + "20" }}>
-                      <Text className="text-xs font-medium" style={{ color: STATUS_COLORS[item.status] }}>
+                    <View style={[styles.statusBadge, { backgroundColor: STATUS_COLORS[item.status] + "20" }]}>
+                      <Text style={[styles.statusBadgeText, { color: STATUS_COLORS[item.status] }]}>
                         {STATUS_LABELS[item.status]}
                       </Text>
                     </View>
+                  </View>
+                </View>
+                {(item.status === "PENDING" || item.status === "CONFIRMED") && (
+                  <View style={styles.resActions}>
+                    <TouchableOpacity
+                      onPress={() => openReschedule(item)}
+                      style={styles.rescheduleBtn}
+                    >
+                      <RotateCcw size={12} color="#f97316" />
+                      <Text style={styles.rescheduleBtnText}>Reagendar</Text>
+                    </TouchableOpacity>
                     {item.status === "PENDING" && (
-                      <TouchableOpacity onPress={() => cancel.mutate(item.id)}>
-                        <Text className="text-xs text-red-500 mt-0.5">Cancelar</Text>
+                      <TouchableOpacity onPress={() => cancel.mutate(item.id)} style={styles.cancelBtn}>
+                        <Text style={styles.cancelBtnText}>Cancelar</Text>
                       </TouchableOpacity>
                     )}
                   </View>
-                </View>
+                )}
               </View>
             )}
-            ListEmptyComponent={<Text className="text-center text-gray-400 py-20">Nenhuma reserva</Text>}
+            ListEmptyComponent={<Text style={styles.empty}>Nenhuma reserva</Text>}
           />
         )
       )}
 
-      {/* Reserve modal */}
-      <Modal visible={!!reserveModal} transparent animationType="slide" onRequestClose={() => setReserveModal(null)}>
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white dark:bg-gray-900 rounded-t-3xl p-6">
-            <View className="mb-4">
-              <Text className="text-lg font-bold text-gray-900 dark:text-white">
-                Reservar — {reserveModal?.name}
-              </Text>
-              {reserveModal?.price ? (
-                <Text className="text-sm text-orange-500 font-medium mt-0.5">
-                  {fmtPrice(reserveModal.price)}
+      {/* Reserve / Reschedule modal */}
+      <Modal visible={isBookingActive} transparent animationType="slide" onRequestClose={() => { setReserveModal(null); setRescheduleTarget(null); }}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.modalTitle}>
+                  {rescheduleTarget ? `Reagendar — ${rescheduleTarget.space?.name}` : `Reservar — ${reserveModal?.name}`}
                 </Text>
-              ) : (
-                <Text className="text-sm text-green-600 mt-0.5">Gratuito</Text>
-              )}
+                {!rescheduleTarget && reserveModal?.price ? (
+                  <Text style={styles.modalPrice}>{fmtPrice(reserveModal.price)}</Text>
+                ) : !rescheduleTarget ? (
+                  <Text style={{ color: "#22c55e", fontSize: 13, marginTop: 2 }}>Gratuito</Text>
+                ) : null}
+              </View>
+              <TouchableOpacity
+                onPress={() => { setReserveModal(null); setRescheduleTarget(null); }}
+                style={styles.modalCloseBtn}
+              >
+                <X size={18} color="#9a9a9a" />
+              </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text className="text-xs text-gray-500 mb-2 font-medium">Selecione a data</Text>
+
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <Text style={styles.fieldLabel}>SELECIONE A DATA</Text>
               <CalendarPicker
                 selected={form.date}
                 onSelect={handleDateSelect}
@@ -402,16 +406,16 @@ export default function ReservationsScreen() {
                 onMonthChange={handleCalMonthChange}
               />
               {form.date ? (
-                <Text className="text-xs text-orange-500 font-semibold mb-3">
-                  Data selecionada: {fmtDate(form.date)}
-                </Text>
+                <Text style={styles.selectedDateText}>Data: {fmtDate(form.date)}</Text>
               ) : null}
-              <View className="flex-row gap-2 mb-3">
-                <View className="flex-1">
-                  <Text className="text-xs text-gray-500 mb-1">Início (HH:MM)</Text>
+
+              <View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.fieldLabel}>INÍCIO (HH:MM)</Text>
                   <TextInput
-                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                    style={styles.fieldInput}
                     placeholder="09:00"
+                    placeholderTextColor="#535353"
                     value={form.startTime}
                     onChangeText={v => {
                       const d = v.replace(/\D/g, "").slice(0, 4);
@@ -421,11 +425,12 @@ export default function ReservationsScreen() {
                     maxLength={5}
                   />
                 </View>
-                <View className="flex-1">
-                  <Text className="text-xs text-gray-500 mb-1">Fim (HH:MM)</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.fieldLabel}>FIM (HH:MM)</Text>
                   <TextInput
-                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                    style={styles.fieldInput}
                     placeholder="12:00"
+                    placeholderTextColor="#535353"
                     value={form.endTime}
                     onChangeText={v => {
                       const d = v.replace(/\D/g, "").slice(0, 4);
@@ -436,23 +441,30 @@ export default function ReservationsScreen() {
                   />
                 </View>
               </View>
+
               <TextInput
-                className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white mb-3"
+                style={[styles.fieldInput, { marginBottom: 16 }]}
                 placeholder="Observações (opcional)"
+                placeholderTextColor="#535353"
                 value={form.notes}
                 onChangeText={v => setForm(f => ({ ...f, notes: v }))}
               />
-              {reserveModal?.price ? (
-                <View className="mb-3">
-                  <Text className="text-xs text-gray-500 mb-2">Forma de pagamento</Text>
-                  <View className="flex-row gap-2">
+
+              {/* Payment (only for new reservations with price) */}
+              {!rescheduleTarget && reserveModal?.price ? (
+                <View style={{ marginBottom: 16 }}>
+                  <Text style={styles.fieldLabel}>FORMA DE PAGAMENTO</Text>
+                  <View style={{ flexDirection: "row", gap: 8 }}>
                     {(["PIX", "CREDIT_CARD"] as const).map(m => (
                       <TouchableOpacity
                         key={m}
                         onPress={() => setPaymentMethod(m)}
-                        className={`flex-1 py-2 rounded-xl border items-center ${paymentMethod === m ? "border-orange-500 bg-orange-50" : "border-gray-200"}`}
+                        style={[
+                          styles.payMethodBtn,
+                          paymentMethod === m && styles.payMethodBtnActive,
+                        ]}
                       >
-                        <Text className={`text-xs font-semibold ${paymentMethod === m ? "text-orange-600" : "text-gray-500"}`}>
+                        <Text style={[styles.payMethodText, paymentMethod === m && { color: "#f97316" }]}>
                           {m === "PIX" ? "PIX" : "Cartão de Crédito"}
                         </Text>
                       </TouchableOpacity>
@@ -460,29 +472,33 @@ export default function ReservationsScreen() {
                   </View>
                 </View>
               ) : null}
-              {paymentMethod === "CREDIT_CARD" && reserveModal?.price ? (
-                <View className="gap-2 mb-3">
-                  <Text className="text-xs text-gray-500 font-medium">Dados do cartão</Text>
+
+              {!rescheduleTarget && paymentMethod === "CREDIT_CARD" && reserveModal?.price ? (
+                <View style={{ gap: 12, marginBottom: 16 }}>
+                  <Text style={styles.fieldLabel}>DADOS DO CARTÃO</Text>
                   <TextInput
-                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                    style={styles.fieldInput}
                     placeholder="NOME NO CARTÃO"
+                    placeholderTextColor="#535353"
                     value={cardHolderName}
                     onChangeText={setCardHolderName}
                     autoCapitalize="characters"
                     autoCorrect={false}
                   />
                   <TextInput
-                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white tracking-widest"
+                    style={styles.fieldInput}
                     placeholder="0000 0000 0000 0000"
+                    placeholderTextColor="#535353"
                     value={cardNumberDisplay}
                     onChangeText={v => setCardNumberDisplay(v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim())}
                     keyboardType="numeric"
                     maxLength={19}
                   />
-                  <View className="flex-row gap-2">
+                  <View style={{ flexDirection: "row", gap: 12 }}>
                     <TextInput
-                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                      style={[styles.fieldInput, { flex: 1 }]}
                       placeholder="MM/AA"
+                      placeholderTextColor="#535353"
                       value={cardExpiry}
                       onChangeText={v => {
                         const digits = v.replace(/\D/g, "").slice(0, 4);
@@ -492,8 +508,9 @@ export default function ReservationsScreen() {
                       maxLength={5}
                     />
                     <TextInput
-                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white"
+                      style={[styles.fieldInput, { flex: 1 }]}
                       placeholder="CVC"
+                      placeholderTextColor="#535353"
                       value={cardCcv}
                       onChangeText={v => setCardCcv(v.replace(/\D/g, "").slice(0, 4))}
                       keyboardType="numeric"
@@ -503,53 +520,51 @@ export default function ReservationsScreen() {
                   </View>
                 </View>
               ) : null}
+
               <TouchableOpacity
-                onPress={() => create.mutate()}
+                onPress={() => rescheduleTarget ? reschedule.mutate() : create.mutate()}
                 disabled={
-                  !form.date || !form.startTime || !form.endTime || create.isPending ||
-                  (paymentMethod === "CREDIT_CARD" && !!reserveModal?.price && (
-                    !cardHolderName || cardNumberDisplay.replace(/\s/g, "").length < 15 || cardExpiry.length < 5 || cardCcv.length < 3
-                  ))
+                  !form.date || !form.startTime || !form.endTime ||
+                  create.isPending || reschedule.isPending
                 }
-                className="bg-orange-500 rounded-xl py-3 items-center active:opacity-80 disabled:opacity-50"
+                style={[
+                  styles.confirmBtn,
+                  (!form.date || !form.startTime || !form.endTime) && { opacity: 0.4 },
+                ]}
               >
-                <Text className="text-white font-semibold">
-                  {create.isPending ? "Solicitando..." : "Solicitar reserva"}
+                <Text style={styles.confirmBtnText}>
+                  {create.isPending || reschedule.isPending
+                    ? "Processando..."
+                    : rescheduleTarget ? "Confirmar reagendamento" : "Solicitar reserva"}
                 </Text>
               </TouchableOpacity>
+              <View style={{ height: 24 }} />
             </ScrollView>
           </View>
         </View>
       </Modal>
 
-      {/* PIX payment modal */}
+      {/* PIX modal */}
       <Modal visible={!!pixModal} transparent animationType="fade" onRequestClose={() => setPixModal(null)}>
-        <View className="flex-1 bg-black/60 justify-center px-5">
-          <View className="bg-white dark:bg-gray-900 rounded-3xl p-6">
-            <Text className="text-lg font-bold text-gray-900 dark:text-white mb-1">Pagamento PIX</Text>
-            <Text className="text-sm text-gray-500 mb-3">
+        <View style={styles.pixModalBackdrop}>
+          <View style={styles.pixModalCard}>
+            <Text style={styles.pixTitle}>Pagamento PIX</Text>
+            <Text style={styles.pixSub}>
               {pixModal?.space?.name} · {pixModal ? fmtDate(pixModal.date) : ""} · {pixModal?.startTime}–{pixModal?.endTime}
             </Text>
             {pixModal?.totalAmount ? (
-              <Text className="text-2xl font-bold text-orange-500 mb-4">
-                {fmtPrice(Number(pixModal.totalAmount))}
-              </Text>
+              <Text style={styles.pixAmount}>{fmtPrice(Number(pixModal.totalAmount))}</Text>
             ) : null}
-            <Text className="text-xs text-gray-500 mb-1 font-medium">Chave PIX Copia e Cola</Text>
-            <View className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 mb-2">
-              <Text className="text-xs font-mono text-gray-700 dark:text-gray-300" selectable>
-                {pixModal?.pixCopiaECola}
-              </Text>
+            <Text style={styles.fieldLabel}>CHAVE PIX COPIA E COLA</Text>
+            <View style={styles.pixKeyBox}>
+              <Text style={styles.pixKeyText} selectable>{pixModal?.pixCopiaECola}</Text>
             </View>
             {pixModal?.pixCopiaECola && <CopyPix text={pixModal.pixCopiaECola} />}
-            <Text className="text-xs text-gray-400 mt-3 mb-5">
-              Após o pagamento, o condomínio confirmará sua reserva. A chave PIX estará disponível em "Minhas reservas".
+            <Text style={styles.pixInfo}>
+              Após o pagamento, o condomínio confirmará sua reserva.
             </Text>
-            <TouchableOpacity
-              onPress={() => setPixModal(null)}
-              className="bg-orange-500 rounded-xl py-3 items-center"
-            >
-              <Text className="text-white font-bold">Entendido</Text>
+            <TouchableOpacity onPress={() => setPixModal(null)} style={styles.confirmBtn}>
+              <Text style={styles.confirmBtnText}>Entendido</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -557,3 +572,189 @@ export default function ReservationsScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#111111" },
+  loader: { flex: 1, alignItems: "center", justifyContent: "center" },
+  tabBar: {
+    flexDirection: "row",
+    backgroundColor: "#111111",
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+    paddingHorizontal: 20,
+  },
+  tabItem: {
+    paddingVertical: 14,
+    marginRight: 24,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  tabItemActive: {
+    borderBottomColor: "#f97316",
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#535353",
+  },
+  tabTextActive: {
+    color: "#f97316",
+    fontWeight: "700",
+  },
+  listPad: { padding: 20 },
+  spaceCard: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    padding: 16,
+    marginBottom: 12,
+  },
+  spaceName: { fontSize: 16, fontWeight: "700", color: "#ffffff" },
+  spaceDesc: { fontSize: 13, color: "#9a9a9a", marginTop: 3 },
+  spaceMeta: { flexDirection: "row", gap: 14, marginTop: 6 },
+  spaceMetaText: { fontSize: 12, color: "#9a9a9a" },
+  spaceRules: { fontSize: 11, color: "#535353", fontStyle: "italic", marginTop: 4 },
+  reserveBtn: {
+    backgroundColor: "#f97316",
+    borderRadius: 999,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    marginTop: 12,
+  },
+  reserveBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 14 },
+  resCard: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    padding: 16,
+    marginBottom: 12,
+  },
+  resCardTop: { flexDirection: "row", alignItems: "flex-start" },
+  resSpace: { fontSize: 15, fontWeight: "700", color: "#ffffff" },
+  resDatetime: { fontSize: 13, color: "#9a9a9a", marginTop: 2 },
+  resNotes: { fontSize: 11, color: "#535353", fontStyle: "italic", marginTop: 2 },
+  pixAlert: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
+  pixAlertText: { fontSize: 12, color: "#f97316", fontWeight: "600" },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
+  statusBadgeText: { fontSize: 11, fontWeight: "700" },
+  resActions: { flexDirection: "row", gap: 8, marginTop: 10 },
+  rescheduleBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#f9731618",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  rescheduleBtnText: { fontSize: 12, fontWeight: "700", color: "#f97316" },
+  cancelBtn: {
+    backgroundColor: "#ef444415",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  cancelBtnText: { fontSize: 12, fontWeight: "600", color: "#f87171" },
+  empty: { textAlign: "center", color: "#535353", paddingTop: 60, fontSize: 14 },
+  // Modal
+  modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "flex-end" },
+  modalSheet: {
+    backgroundColor: "#1a1a1a",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    maxHeight: "92%",
+  },
+  modalHandle: {
+    width: 36, height: 4, backgroundColor: "#2a2a2a",
+    borderRadius: 2, alignSelf: "center", marginTop: 12, marginBottom: 16,
+  },
+  modalHeader: {
+    flexDirection: "row", alignItems: "flex-start",
+    justifyContent: "space-between", marginBottom: 16,
+  },
+  modalTitle: { fontSize: 17, fontWeight: "700", color: "#ffffff" },
+  modalPrice: { fontSize: 14, color: "#f97316", fontWeight: "600", marginTop: 2 },
+  modalCloseBtn: {
+    width: 32, height: 32, backgroundColor: "#242424",
+    borderRadius: 16, alignItems: "center", justifyContent: "center",
+  },
+  calendar: {
+    backgroundColor: "#242424",
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 12,
+  },
+  calHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
+  calNavBtn: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },
+  calMonth: { fontSize: 15, fontWeight: "700", color: "#ffffff" },
+  calWeekdays: { flexDirection: "row", marginBottom: 4 },
+  calWeekday: { fontSize: 11, color: "#535353", fontWeight: "600", textAlign: "center" },
+  calDay: {
+    width: 32, height: 32, borderRadius: 16,
+    alignItems: "center", justifyContent: "center",
+  },
+  calDaySelected: { backgroundColor: "#f97316" },
+  calDayReserved: { backgroundColor: "#ef444422" },
+  calDayText: { fontSize: 13, fontWeight: "500", color: "#ffffff" },
+  calLegend: { flexDirection: "row", gap: 16, marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: "#2a2a2a" },
+  calLegendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
+  calLegendDot: { width: 10, height: 10, borderRadius: 5 },
+  calLegendText: { fontSize: 11, color: "#535353" },
+  selectedDateText: { fontSize: 12, color: "#f97316", fontWeight: "600", marginBottom: 12 },
+  fieldLabel: {
+    fontSize: 10, fontWeight: "700", color: "#535353",
+    letterSpacing: 1.2, marginBottom: 8,
+  },
+  fieldInput: {
+    backgroundColor: "#242424",
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: "#ffffff",
+    fontSize: 14,
+  },
+  payMethodBtn: {
+    flex: 1, paddingVertical: 10, borderRadius: 12,
+    borderWidth: 1, borderColor: "#2a2a2a",
+    alignItems: "center", backgroundColor: "#242424",
+  },
+  payMethodBtnActive: { borderColor: "#f97316", backgroundColor: "#f9731610" },
+  payMethodText: { fontSize: 12, fontWeight: "700", color: "#535353" },
+  confirmBtn: {
+    backgroundColor: "#f97316",
+    borderRadius: 999,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  confirmBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 15 },
+  // PIX modal
+  pixModalBackdrop: {
+    flex: 1, backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "center", paddingHorizontal: 20,
+  },
+  pixModalCard: {
+    backgroundColor: "#1a1a1a", borderRadius: 20,
+    padding: 24, borderWidth: 1, borderColor: "#2a2a2a",
+  },
+  pixTitle: { fontSize: 18, fontWeight: "700", color: "#ffffff", marginBottom: 4 },
+  pixSub: { fontSize: 13, color: "#9a9a9a", marginBottom: 16 },
+  pixAmount: { fontSize: 28, fontWeight: "800", color: "#f97316", marginBottom: 16 },
+  pixKeyBox: {
+    backgroundColor: "#242424", borderRadius: 12,
+    borderWidth: 1, borderColor: "#2a2a2a", padding: 12, marginBottom: 4,
+  },
+  pixKeyText: { fontSize: 12, fontFamily: "monospace", color: "#d0d0d0" },
+  copyRow: { flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 8, marginBottom: 8 },
+  copyText: { fontSize: 13, fontWeight: "700", color: "#f97316" },
+  pixInfo: { fontSize: 12, color: "#535353", marginBottom: 16, lineHeight: 18 },
+});

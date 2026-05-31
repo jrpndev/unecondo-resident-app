@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
 import {
-  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal,
+  View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal, StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowLeft, Vote, X, Check, Minus } from "lucide-react-native";
+import { ArrowLeft, Vote, Check } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { getAssemblies, castVote, Assembly } from "../lib/assemblies";
 import { useAuthStore } from "../store/auth";
 
-const STATUS_LABELS: Record<string, string> = { DRAFT: "Rascunho", OPEN: "Aberta para votação", CLOSED: "Encerrada" };
-const STATUS_COLORS: Record<string, string> = { DRAFT: "#6b7280", OPEN: "#22c55e", CLOSED: "#3b82f6" };
+const STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Rascunho", OPEN: "Aberta para votação", CLOSED: "Encerrada",
+};
+const STATUS_COLORS: Record<string, string> = {
+  DRAFT: "#6b7280", OPEN: "#22c55e", CLOSED: "#3b82f6",
+};
 
 export default function AssembliesScreen() {
   const router = useRouter();
@@ -26,17 +30,12 @@ export default function AssembliesScreen() {
 
   const handleVote = async (itemId: string, choice: "YES" | "NO" | "ABSTAIN") => {
     if (!user?.residentId) return Toast.show({ type: "error", text1: "Cadastro incompleto" });
-
     setVoting(true);
     try {
       await castVote(itemId, choice);
-      await load();
-      const updated = assemblies.find(a => a.agendaItems.some(i => i.id === itemId));
-      if (updated) {
-        const fresh = await getAssemblies();
-        setAssemblies(fresh);
-        setSelected(fresh.find(a => a.id === updated.id) ?? null);
-      }
+      const fresh = await getAssemblies();
+      setAssemblies(fresh);
+      setSelected(prev => prev ? (fresh.find(a => a.id === prev.id) ?? null) : null);
       Toast.show({ type: "success", text1: "Voto registrado" });
     } catch {
       Toast.show({ type: "error", text1: "Erro ao votar" });
@@ -54,37 +53,44 @@ export default function AssembliesScreen() {
   });
 
   return (
-    <View className="flex-1 bg-gray-950" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center px-4 py-4 border-b border-gray-800">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1.5 rounded-xl bg-gray-800 active:opacity-70">
-          <ArrowLeft size={18} color="white" />
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ArrowLeft size={18} color="#ffffff" />
         </TouchableOpacity>
-        <View className="flex-1">
-          <Text className="text-white text-lg font-bold">Assembleias</Text>
-          <Text className="text-gray-400 text-xs">Votações e assembleias virtuais</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.headerTitle}>Assembleias</Text>
+          <Text style={styles.headerSub}>Votações e assembleias virtuais</Text>
         </View>
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center"><ActivityIndicator color="#f97316" /></View>
+        <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : assemblies.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <Vote size={48} color="#374151" />
-          <Text className="text-gray-500 text-base font-semibold mt-4">Nenhuma assembleia</Text>
+        <View style={styles.center}>
+          <Vote size={48} color="#2a2a2a" />
+          <Text style={styles.emptyTitle}>Nenhuma assembleia</Text>
+          <Text style={styles.emptySub}>As assembleias virtuais aparecerão aqui</Text>
         </View>
       ) : (
-        <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 10 }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.listContent}>
           {assemblies.map(a => (
-            <TouchableOpacity key={a.id} onPress={() => setSelected(a)} activeOpacity={0.75}
-              className="bg-gray-900 rounded-2xl border border-gray-800 p-4 active:border-primary-800">
-              <View className="flex-row items-center gap-2 mb-2">
-                <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[a.status] + "22" }}>
-                  <Text style={{ color: STATUS_COLORS[a.status], fontSize: 10, fontWeight: "700" }}>{STATUS_LABELS[a.status]}</Text>
+            <TouchableOpacity
+              key={a.id}
+              onPress={() => setSelected(a)}
+              activeOpacity={0.75}
+              style={styles.card}
+            >
+              <View style={styles.cardRow}>
+                <View style={[styles.statusPill, { backgroundColor: STATUS_COLORS[a.status] + "22" }]}>
+                  <Text style={[styles.statusText, { color: STATUS_COLORS[a.status] }]}>
+                    {STATUS_LABELS[a.status]}
+                  </Text>
                 </View>
-                <Text className="text-gray-500 text-xs">{a.agendaItems.length} pautas</Text>
+                <Text style={styles.cardMeta}>{a.agendaItems.length} pautas</Text>
               </View>
-              <Text className="text-white text-sm font-bold">{a.title}</Text>
-              <Text className="text-gray-400 text-xs mt-1">
+              <Text style={styles.cardTitle}>{a.title}</Text>
+              <Text style={styles.cardDate}>
                 {new Date(a.scheduledAt).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
               </Text>
             </TouchableOpacity>
@@ -94,17 +100,19 @@ export default function AssembliesScreen() {
 
       {/* Detail modal */}
       <Modal visible={!!selected} transparent animationType="slide">
-        <View className="flex-1 bg-gray-950" style={{ paddingTop: insets.top }}>
-          <View className="flex-row items-center px-4 py-4 border-b border-gray-800">
-            <TouchableOpacity onPress={() => setSelected(null)} className="mr-3 p-1.5 rounded-xl bg-gray-800 active:opacity-70">
-              <ArrowLeft size={18} color="white" />
+        <View style={[styles.root, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => setSelected(null)} style={styles.backBtn}>
+              <ArrowLeft size={18} color="#ffffff" />
             </TouchableOpacity>
-            <View className="flex-1">
-              <Text className="text-white font-bold text-base" numberOfLines={1}>{selected?.title}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.detailTitle} numberOfLines={1}>{selected?.title}</Text>
               {selected && (
-                <View className="flex-row items-center gap-1 mt-0.5">
-                  <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[selected.status] + "22" }}>
-                    <Text style={{ color: STATUS_COLORS[selected.status], fontSize: 10, fontWeight: "700" }}>{STATUS_LABELS[selected.status]}</Text>
+                <View style={styles.cardRow}>
+                  <View style={[styles.statusPill, { backgroundColor: STATUS_COLORS[selected.status] + "22" }]}>
+                    <Text style={[styles.statusText, { color: STATUS_COLORS[selected.status] }]}>
+                      {STATUS_LABELS[selected.status]}
+                    </Text>
                   </View>
                 </View>
               )}
@@ -112,56 +120,67 @@ export default function AssembliesScreen() {
           </View>
 
           {selected && (
-            <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 12 }}>
-              <View className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-                <Text className="text-gray-400 text-xs">
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.detailContent}>
+              <View style={styles.infoCard}>
+                <Text style={styles.infoDate}>
                   📅 {new Date(selected.scheduledAt).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" })}
                 </Text>
-                {selected.description && <Text className="text-gray-300 text-sm mt-2">{selected.description}</Text>}
+                {selected.description && (
+                  <Text style={styles.infoDesc}>{selected.description}</Text>
+                )}
               </View>
 
               {selected.agendaItems.map((item, i) => {
                 const s = voteSummary(item.votes);
                 const canVote = selected.status === "OPEN" && !s.myVote;
                 return (
-                  <View key={item.id} className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
-                    <Text className="text-gray-500 text-xs font-bold mb-1">PAUTA {i + 1}</Text>
-                    <Text className="text-white text-sm font-semibold mb-3">{item.title}</Text>
-                    {item.description && <Text className="text-gray-400 text-xs mb-3">{item.description}</Text>}
+                  <View key={item.id} style={styles.agendaCard}>
+                    <Text style={styles.agendaLabel}>PAUTA {i + 1}</Text>
+                    <Text style={styles.agendaTitle}>{item.title}</Text>
+                    {item.description && (
+                      <Text style={styles.agendaDesc}>{item.description}</Text>
+                    )}
 
-                    {/* Vote results bar */}
                     {s.total > 0 && (
-                      <View className="mb-3">
-                        <View className="flex-row rounded-full overflow-hidden h-2 bg-gray-800">
-                          <View style={{ flex: s.yes, backgroundColor: "#22c55e" }} />
-                          <View style={{ flex: s.no, backgroundColor: "#ef4444" }} />
-                          <View style={{ flex: s.abs, backgroundColor: "#6b7280" }} />
+                      <View style={styles.voteBar}>
+                        <View style={styles.voteTrack}>
+                          <View style={[styles.voteSegment, { flex: s.yes, backgroundColor: "#22c55e" }]} />
+                          <View style={[styles.voteSegment, { flex: s.no, backgroundColor: "#ef4444" }]} />
+                          <View style={[styles.voteSegment, { flex: s.abs, backgroundColor: "#6b7280" }]} />
                         </View>
-                        <View className="flex-row justify-between mt-1.5">
-                          <Text className="text-green-400 text-xs font-semibold">✓ {s.yes}</Text>
-                          <Text className="text-red-400 text-xs font-semibold">✗ {s.no}</Text>
-                          <Text className="text-gray-500 text-xs">— {s.abs}</Text>
-                          <Text className="text-gray-500 text-xs">{s.total} votos</Text>
+                        <View style={styles.voteNumbers}>
+                          <Text style={[styles.voteNum, { color: "#4ade80" }]}>✓ {s.yes}</Text>
+                          <Text style={[styles.voteNum, { color: "#f87171" }]}>✗ {s.no}</Text>
+                          <Text style={[styles.voteNum, { color: "#6b7280" }]}>— {s.abs}</Text>
+                          <Text style={[styles.voteNum, { color: "#6b7280" }]}>{s.total} votos</Text>
                         </View>
                       </View>
                     )}
 
                     {s.myVote && (
-                      <View className="bg-primary-900/20 border border-primary-800/30 rounded-xl p-2.5 flex-row items-center gap-2">
+                      <View style={styles.myVoteBox}>
                         <Check size={14} color="#f97316" />
-                        <Text className="text-primary-400 text-xs font-semibold">
+                        <Text style={styles.myVoteText}>
                           Seu voto: {s.myVote === "YES" ? "Sim" : s.myVote === "NO" ? "Não" : "Abstenção"}
                         </Text>
                       </View>
                     )}
 
                     {canVote && (
-                      <View className="flex-row gap-2 mt-1">
+                      <View style={styles.voteActions}>
                         {(["YES", "NO", "ABSTAIN"] as const).map(choice => (
-                          <TouchableOpacity key={choice} onPress={() => handleVote(item.id, choice)} disabled={voting}
+                          <TouchableOpacity
+                            key={choice}
+                            onPress={() => handleVote(item.id, choice)}
+                            disabled={voting}
                             activeOpacity={0.75}
-                            className={`flex-1 py-2.5 rounded-xl items-center ${choice === "YES" ? "bg-green-600" : choice === "NO" ? "bg-red-600" : "bg-gray-700"}`}>
-                            <Text className="text-white text-xs font-bold">
+                            style={[
+                              styles.voteBtn,
+                              choice === "YES" && styles.voteBtnYes,
+                              choice === "NO" && styles.voteBtnNo,
+                            ]}
+                          >
+                            <Text style={styles.voteBtnText}>
                               {choice === "YES" ? "Sim" : choice === "NO" ? "Não" : "Abstenção"}
                             </Text>
                           </TouchableOpacity>
@@ -170,7 +189,7 @@ export default function AssembliesScreen() {
                     )}
 
                     {selected.status === "DRAFT" && (
-                      <Text className="text-gray-600 text-xs text-center mt-1">Votação ainda não aberta</Text>
+                      <Text style={styles.draftNote}>Votação ainda não aberta</Text>
                     )}
                   </View>
                 );
@@ -182,3 +201,75 @@ export default function AssembliesScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: "#111111" },
+  header: {
+    flexDirection: "row", alignItems: "center",
+    paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16,
+    borderBottomWidth: 1, borderBottomColor: "#2a2a2a",
+    gap: 12,
+  },
+  backBtn: {
+    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    borderRadius: 18, alignItems: "center", justifyContent: "center",
+  },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: "#ffffff" },
+  headerSub: { fontSize: 12, color: "#9a9a9a", marginTop: 1 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, gap: 8 },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
+  emptySub: { fontSize: 13, color: "#535353", textAlign: "center" },
+  listContent: { padding: 16, gap: 10 },
+  card: {
+    backgroundColor: "#1a1a1a", borderRadius: 16,
+    borderWidth: 1, borderColor: "#2a2a2a", padding: 16,
+  },
+  cardRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
+  statusPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
+  statusText: { fontSize: 10, fontWeight: "700" },
+  cardTitle: { color: "#ffffff", fontSize: 14, fontWeight: "700" },
+  cardDate: { color: "#9a9a9a", fontSize: 12, marginTop: 4 },
+  cardMeta: { color: "#535353", fontSize: 11 },
+  // Detail
+  detailTitle: { color: "#ffffff", fontWeight: "700", fontSize: 16 },
+  detailContent: { padding: 16, gap: 12 },
+  infoCard: {
+    backgroundColor: "#1a1a1a", borderRadius: 12,
+    padding: 12, borderWidth: 1, borderColor: "#2a2a2a",
+  },
+  infoDate: { color: "#9a9a9a", fontSize: 12 },
+  infoDesc: { color: "#e5e5e5", fontSize: 13, marginTop: 8 },
+  agendaCard: {
+    backgroundColor: "#1a1a1a", borderRadius: 16,
+    borderWidth: 1, borderColor: "#2a2a2a", padding: 16,
+  },
+  agendaLabel: {
+    color: "#535353", fontSize: 10, fontWeight: "700",
+    textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 4,
+  },
+  agendaTitle: { color: "#ffffff", fontSize: 14, fontWeight: "700", marginBottom: 8 },
+  agendaDesc: { color: "#9a9a9a", fontSize: 12, marginBottom: 12 },
+  voteBar: { marginBottom: 12 },
+  voteTrack: {
+    flexDirection: "row", borderRadius: 999, overflow: "hidden",
+    height: 8, backgroundColor: "#2a2a2a",
+  },
+  voteSegment: {},
+  voteNumbers: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
+  voteNum: { fontSize: 11, fontWeight: "600" },
+  myVoteBox: {
+    backgroundColor: "#f9731618", borderWidth: 1, borderColor: "#f9731440",
+    borderRadius: 12, padding: 10,
+    flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4,
+  },
+  myVoteText: { color: "#f97316", fontSize: 12, fontWeight: "600" },
+  voteActions: { flexDirection: "row", gap: 8, marginTop: 4 },
+  voteBtn: {
+    flex: 1, paddingVertical: 10, borderRadius: 999,
+    alignItems: "center", backgroundColor: "#2a2a2a",
+  },
+  voteBtnYes: { backgroundColor: "#16a34a" },
+  voteBtnNo: { backgroundColor: "#dc2626" },
+  voteBtnText: { color: "#ffffff", fontSize: 12, fontWeight: "700" },
+  draftNote: { color: "#535353", fontSize: 11, textAlign: "center", marginTop: 4 },
+});

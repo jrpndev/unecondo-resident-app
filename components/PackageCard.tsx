@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Package2, MapPin, User } from "lucide-react-native";
 import { Package, ORIGINS } from "../types";
 import { StatusBadge } from "./StatusBadge";
@@ -12,13 +12,13 @@ interface Props {
 }
 
 const ORIGIN_COLORS: Record<string, { bg: string; text: string }> = {
-  SHOPEE:        { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400" },
-  AMAZON:        { bg: "bg-yellow-100 dark:bg-yellow-900/30", text: "text-yellow-700 dark:text-yellow-400" },
-  ALIEXPRESS:    { bg: "bg-red-100 dark:bg-red-900/30",       text: "text-red-700 dark:text-red-400"       },
-  MERCADO_LIVRE: { bg: "bg-yellow-100 dark:bg-yellow-900/30", text: "text-yellow-800 dark:text-yellow-400" },
-  CORREIOS:      { bg: "bg-blue-100 dark:bg-blue-900/30",     text: "text-blue-700 dark:text-blue-400"     },
-  SHEIN:         { bg: "bg-pink-100 dark:bg-pink-900/30",     text: "text-pink-700 dark:text-pink-400"     },
-  OUTRO:         { bg: "bg-gray-100 dark:bg-gray-700",        text: "text-gray-700 dark:text-gray-300"     },
+  SHOPEE:        { bg: "#f9731620", text: "#fb923c" },
+  AMAZON:        { bg: "#f59e0b20", text: "#fbbf24" },
+  ALIEXPRESS:    { bg: "#ef444420", text: "#f87171" },
+  MERCADO_LIVRE: { bg: "#f59e0b20", text: "#fbbf24" },
+  CORREIOS:      { bg: "#3b82f620", text: "#60a5fa" },
+  SHEIN:         { bg: "#ec489920", text: "#f472b6" },
+  OUTRO:         { bg: "#ffffff18", text: "#9a9a9a" },
 };
 
 function getOriginLabel(value: string) {
@@ -37,32 +37,19 @@ export const PackageCard = React.memo(function PackageCard({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-white dark:bg-gray-900 rounded-2xl p-4 mb-3"
-      activeOpacity={0.7}
-      style={{
-        shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
-      }}
+      style={styles.card}
+      activeOpacity={0.75}
     >
-      <View className="flex-row items-start justify-between mb-2">
-        <View className="flex-row items-center flex-1 mr-2">
-          <View className="w-11 h-11 bg-primary-100 dark:bg-primary-900/30 rounded-2xl items-center justify-center mr-3">
-            <Package2 size={20} color="#ea580c" />
+      <View style={styles.topRow}>
+        <View style={styles.iconAndText}>
+          <View style={styles.iconBox}>
+            <Package2 size={22} color="#f97316" />
           </View>
-          <View className="flex-1">
-            <Text
-              className="text-gray-900 dark:text-white font-bold text-sm"
-              numberOfLines={1}
-            >
+          <View style={styles.textBlock}>
+            <Text style={styles.trackingCode} numberOfLines={1}>
               {pkg.trackingCode || "Sem código"}
             </Text>
-            <Text
-              className="text-gray-400 text-xs mt-0.5"
-              numberOfLines={1}
-            >
+            <Text style={styles.description} numberOfLines={1}>
               {pkg.description || "Sem descrição"}
             </Text>
           </View>
@@ -71,17 +58,17 @@ export const PackageCard = React.memo(function PackageCard({
       </View>
 
       {showOriginBadge && (pkg.origin || pkg.category) && (
-        <View className="flex-row gap-2 mb-2">
+        <View style={styles.badgeRow}>
           {pkg.origin && originColors && (
-            <View className={`px-2 py-0.5 rounded-full ${originColors.bg}`}>
-              <Text className={`text-xs font-semibold ${originColors.text}`}>
+            <View style={[styles.badge, { backgroundColor: originColors.bg }]}>
+              <Text style={[styles.badgeText, { color: originColors.text }]}>
                 {getOriginLabel(pkg.origin)}
               </Text>
             </View>
           )}
           {pkg.category && (
-            <View className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700">
-              <Text className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+            <View style={[styles.badge, { backgroundColor: "#ffffff18" }]}>
+              <Text style={[styles.badgeText, { color: "#9a9a9a" }]}>
                 {pkg.category}
               </Text>
             </View>
@@ -89,30 +76,112 @@ export const PackageCard = React.memo(function PackageCard({
         </View>
       )}
 
-      <View className="flex-row items-center mt-2 gap-4">
-        <View className="flex-row items-center">
-          <MapPin size={12} color="#9ca3af" />
-          <Text className="text-gray-400 text-xs ml-1">
+      <View style={styles.footer}>
+        <View style={styles.footerItem}>
+          <MapPin size={11} color="#5a5a5a" />
+          <Text style={styles.footerText}>
             {pkg.unit?.condo?.name} · Unid. {pkg.unit?.number}
           </Text>
         </View>
         {pkg.resident && (
-          <View className="flex-row items-center">
-            <User size={12} color="#9ca3af" />
-            <Text className="text-gray-400 text-xs ml-1">
-              {pkg.resident.name}
-            </Text>
+          <View style={styles.footerItem}>
+            <User size={11} color="#5a5a5a" />
+            <Text style={styles.footerText}>{pkg.resident.name}</Text>
           </View>
         )}
       </View>
-      <Text className="text-gray-500 dark:text-gray-600 text-xs mt-2">
-        {formatDate(pkg.createdAt)}
-      </Text>
+
+      <Text style={styles.date}>{formatDate(pkg.createdAt)}</Text>
       {pkg.deliveredAt && (
-        <Text className="text-emerald-400 text-xs mt-0.5">
+        <Text style={styles.deliveredDate}>
           Entregue em: {formatDate(pkg.deliveredAt)}
         </Text>
       )}
     </TouchableOpacity>
   );
+});
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2a2a2a",
+    padding: 16,
+    marginBottom: 10,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  iconAndText: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    marginRight: 8,
+  },
+  iconBox: {
+    width: 46,
+    height: 46,
+    backgroundColor: "#f9731618",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  textBlock: {
+    flex: 1,
+  },
+  trackingCode: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  description: {
+    fontSize: 13,
+    color: "#9a9a9a",
+    marginTop: 2,
+  },
+  badgeRow: {
+    flexDirection: "row",
+    gap: 6,
+    marginBottom: 8,
+    flexWrap: "wrap",
+  },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 999,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 4,
+  },
+  footerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  footerText: {
+    fontSize: 12,
+    color: "#5a5a5a",
+  },
+  date: {
+    fontSize: 11,
+    color: "#5a5a5a",
+    marginTop: 6,
+  },
+  deliveredDate: {
+    fontSize: 11,
+    color: "#4ade80",
+    marginTop: 2,
+  },
 });
