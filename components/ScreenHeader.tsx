@@ -18,7 +18,7 @@ export function ScreenHeader({ title, subtitle, right, onBack }: Props) {
       <View style={styles.row}>
         {onBack && (
           <TouchableOpacity onPress={onBack} style={styles.backBtn} activeOpacity={0.7}>
-            <ArrowLeft size={18} color="#ffffff" />
+            <ArrowLeft size={18} color="#111827" />
           </TouchableOpacity>
         )}
         <View style={styles.titleBlock}>
@@ -33,9 +33,9 @@ export function ScreenHeader({ title, subtitle, right, onBack }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
     borderBottomWidth: 1,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: "#e5e7eb",
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#e5e7eb",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -58,11 +58,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
   },
   subtitle: {
     fontSize: 13,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 2,
   },
 });

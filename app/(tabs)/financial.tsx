@@ -27,7 +27,7 @@ const STATUS_CONFIG: Record<FeeStatus, { label: string; color: string; icon: any
   PENDING:   { label: "Pendente",  color: "#f97316", icon: Clock },
   CONFIRMED: { label: "Pago",      color: "#22c55e", icon: CheckCircle },
   OVERDUE:   { label: "Atrasado",  color: "#ef4444", icon: AlertCircle },
-  CANCELLED: { label: "Cancelado", color: "#535353", icon: X },
+  CANCELLED: { label: "Cancelado", color: "#9ca3af", icon: X },
 };
 
 type PayMethod = "pix" | "card" | "boleto" | null;
@@ -68,7 +68,7 @@ function FeeCard({ fee, onSelect }: { fee: CondoFee; onSelect: (fee: CondoFee, m
               onPress={() => onSelect(fee, "boleto")}
               style={styles.payBtnBoleto}
             >
-              <FileText size={12} color="#9a9a9a" />
+              <FileText size={12} color="#6b7280" />
               <Text style={styles.payBtnTextSecondary}>Boleto</Text>
             </TouchableOpacity>
           )}
@@ -100,7 +100,7 @@ function PixModal({ fee, onClose }: { fee: CondoFee; onClose: () => void }) {
           <View style={styles.sheetHeader}>
             <Text style={styles.sheetTitle}>Pagar via PIX</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <X size={18} color="#9a9a9a" />
+              <X size={18} color="#6b7280" />
             </TouchableOpacity>
           </View>
           <Text style={styles.pixAmount}>{fmt(fee.amount)}</Text>
@@ -163,7 +163,7 @@ function CardModal({ fee, onClose, onSuccess }: { fee: CondoFee; onClose: () => 
         <View style={[styles.cardModalRoot, { paddingTop: insets.top }]}>
           <View style={styles.cardModalHeader}>
             <TouchableOpacity onPress={onClose} style={styles.cardModalBack}>
-              <X size={18} color="#9a9a9a" />
+              <X size={18} color="#6b7280" />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardModalTitle}>Pagar com Cartão</Text>
@@ -195,7 +195,7 @@ function CardModal({ fee, onClose, onSuccess }: { fee: CondoFee; onClose: () => 
             <TextInput
               style={[styles.fieldInput, { marginBottom: 16 }]}
               placeholder="NOME SOBRENOME"
-              placeholderTextColor="#535353"
+              placeholderTextColor="#9ca3af"
               autoCapitalize="characters"
               autoCorrect={false}
               value={holderName}
@@ -206,7 +206,7 @@ function CardModal({ fee, onClose, onSuccess }: { fee: CondoFee; onClose: () => 
             <TextInput
               style={[styles.fieldInput, { marginBottom: 16 }]}
               placeholder="0000 0000 0000 0000"
-              placeholderTextColor="#535353"
+              placeholderTextColor="#9ca3af"
               keyboardType="numeric"
               maxLength={19}
               value={numberDisplay}
@@ -219,7 +219,7 @@ function CardModal({ fee, onClose, onSuccess }: { fee: CondoFee; onClose: () => 
                 <TextInput
                   style={styles.fieldInput}
                   placeholder="MM/AA"
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   keyboardType="numeric"
                   maxLength={5}
                   value={expiry}
@@ -231,7 +231,7 @@ function CardModal({ fee, onClose, onSuccess }: { fee: CondoFee; onClose: () => 
                 <TextInput
                   style={styles.fieldInput}
                   placeholder="•••"
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   keyboardType="numeric"
                   maxLength={4}
                   secureTextEntry
@@ -308,7 +308,7 @@ export default function FinancialScreen() {
         renderItem={({ item }) => <FeeCard fee={item} onSelect={handleSelect} />}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <DollarSign size={48} color="#2a2a2a" />
+            <DollarSign size={48} color="#d1d5db" />
             <Text style={styles.emptyText}>Nenhuma cobrança encontrada</Text>
           </View>
         }
@@ -329,8 +329,8 @@ export default function FinancialScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
-  loading: { flex: 1, backgroundColor: "#111111", alignItems: "center", justifyContent: "center" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
+  loading: { flex: 1, backgroundColor: "#f5f5f5", alignItems: "center", justifyContent: "center" },
   pendingBanner: {
     marginHorizontal: 20,
     marginTop: 16,
@@ -347,17 +347,17 @@ const styles = StyleSheet.create({
   pendingBannerAmount: { fontSize: 30, fontWeight: "800", color: "#f87171", marginTop: 2 },
   pendingBannerCount: { fontSize: 12, color: "#f8717180", marginTop: 2 },
   feeCard: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 16,
     marginBottom: 12,
   },
   feeTop: { flexDirection: "row", alignItems: "flex-start", marginBottom: 14 },
-  feeTitle: { fontSize: 14, fontWeight: "600", color: "#ffffff" },
-  feeDue: { fontSize: 12, color: "#9a9a9a", marginTop: 2 },
-  feeAmount: { fontSize: 24, fontWeight: "800", color: "#ffffff", marginTop: 6 },
+  feeTitle: { fontSize: 14, fontWeight: "600", color: "#111827" },
+  feeDue: { fontSize: 12, color: "#6b7280", marginTop: 2 },
+  feeAmount: { fontSize: 24, fontWeight: "800", color: "#111827", marginTop: 6 },
   statusBadge: {
     flexDirection: "row", alignItems: "center", gap: 4,
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, marginLeft: 8,
@@ -370,9 +370,9 @@ const styles = StyleSheet.create({
     justifyContent: "center", gap: 4,
   },
   payBtnBoleto: {
-    flex: 1, backgroundColor: "#242424", borderRadius: 10,
+    flex: 1, backgroundColor: "#ffffff", borderRadius: 10,
     paddingVertical: 10, alignItems: "center", flexDirection: "row",
-    justifyContent: "center", gap: 4, borderWidth: 1, borderColor: "#2a2a2a",
+    justifyContent: "center", gap: 4, borderWidth: 1, borderColor: "#e5e7eb",
   },
   payBtnCard: {
     flex: 1, backgroundColor: "#3b82f6", borderRadius: 10,
@@ -380,61 +380,61 @@ const styles = StyleSheet.create({
     justifyContent: "center", gap: 4,
   },
   payBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 13 },
-  payBtnTextSecondary: { color: "#9a9a9a", fontWeight: "700", fontSize: 13 },
+  payBtnTextSecondary: { color: "#6b7280", fontWeight: "700", fontSize: 13 },
   empty: { alignItems: "center", justifyContent: "center", paddingTop: 80, gap: 12 },
-  emptyText: { fontSize: 15, color: "#535353" },
+  emptyText: { fontSize: 15, color: "#9ca3af" },
   // Sheet
   sheetBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "flex-end" },
   sheet: {
-    backgroundColor: "#1a1a1a", borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: "#f5f5f5", borderTopLeftRadius: 24, borderTopRightRadius: 24,
     padding: 24, paddingBottom: 40,
   },
   sheetHandle: {
-    width: 36, height: 4, backgroundColor: "#2a2a2a",
+    width: 36, height: 4, backgroundColor: "#ffffff",
     borderRadius: 2, alignSelf: "center", marginBottom: 20,
   },
   sheetHeader: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between", marginBottom: 20,
   },
-  sheetTitle: { fontSize: 18, fontWeight: "700", color: "#ffffff" },
+  sheetTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
   closeBtn: {
-    width: 32, height: 32, backgroundColor: "#242424",
+    width: 32, height: 32, backgroundColor: "#ffffff",
     borderRadius: 16, alignItems: "center", justifyContent: "center",
   },
-  pixAmount: { fontSize: 34, fontWeight: "800", color: "#ffffff", textAlign: "center", marginBottom: 24 },
+  pixAmount: { fontSize: 34, fontWeight: "800", color: "#111827", textAlign: "center", marginBottom: 24 },
   pixSection: { marginBottom: 20 },
   pixLabel: {
-    fontSize: 10, fontWeight: "700", color: "#535353",
+    fontSize: 10, fontWeight: "700", color: "#9ca3af",
     letterSpacing: 1.2, marginBottom: 8,
   },
   pixKeyRow: {
     flexDirection: "row", alignItems: "center",
-    backgroundColor: "#242424", borderRadius: 12,
-    borderWidth: 1, borderColor: "#2a2a2a", paddingHorizontal: 16, paddingVertical: 12, gap: 10,
+    backgroundColor: "#ffffff", borderRadius: 12,
+    borderWidth: 1, borderColor: "#e5e7eb", paddingHorizontal: 16, paddingVertical: 12, gap: 10,
   },
-  pixKeyText: { flex: 1, fontSize: 12, color: "#d0d0d0" },
+  pixKeyText: { flex: 1, fontSize: 12, color: "#111827" },
   pixCopyBtn: { padding: 4 },
   confirmBtn: {
     backgroundColor: "#f97316", borderRadius: 999, paddingVertical: 16, alignItems: "center",
   },
   confirmBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 15 },
   // Card modal
-  cardModalRoot: { flex: 1, backgroundColor: "#111111" },
+  cardModalRoot: { flex: 1, backgroundColor: "#f5f5f5" },
   cardModalHeader: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: 1, borderBottomColor: "#2a2a2a", gap: 12,
+    borderBottomWidth: 1, borderBottomColor: "#e5e7eb", gap: 12,
   },
   cardModalBack: {
-    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    width: 36, height: 36, backgroundColor: "#ffffff",
     borderRadius: 18, alignItems: "center", justifyContent: "center",
   },
-  cardModalTitle: { fontSize: 16, fontWeight: "700", color: "#ffffff" },
-  cardModalSub: { fontSize: 12, color: "#535353", marginTop: 1 },
+  cardModalTitle: { fontSize: 16, fontWeight: "700", color: "#111827" },
+  cardModalSub: { fontSize: 12, color: "#9ca3af", marginTop: 1 },
   cardModalAmount: {
-    backgroundColor: "#1a1a1a", paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 10, borderWidth: 1, borderColor: "#2a2a2a",
+    backgroundColor: "#f5f5f5", paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: 10, borderWidth: 1, borderColor: "#e5e7eb",
   },
   cardModalAmountText: { fontSize: 14, fontWeight: "700", color: "#3b82f6" },
   cardVisual: {
@@ -442,24 +442,24 @@ const styles = StyleSheet.create({
     marginBottom: 24, aspectRatio: 1.6,
   },
   cardVisualNumber: {
-    color: "#ffffff", fontSize: 18, fontWeight: "700",
+    color: "#111827", fontSize: 18, fontWeight: "700",
     letterSpacing: 3, marginTop: 16,
   },
   cardVisualBottom: { flexDirection: "row", justifyContent: "space-between", marginTop: 16 },
   cardVisualLabel: { fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 1 },
-  cardVisualValue: { fontSize: 13, fontWeight: "600", color: "#ffffff", marginTop: 2 },
+  cardVisualValue: { fontSize: 13, fontWeight: "600", color: "#111827", marginTop: 2 },
   fieldLabel: {
-    fontSize: 10, fontWeight: "700", color: "#535353",
+    fontSize: 10, fontWeight: "700", color: "#9ca3af",
     letterSpacing: 1.2, marginBottom: 8,
   },
   fieldInput: {
-    backgroundColor: "#1a1a1a", borderWidth: 1, borderColor: "#2a2a2a",
+    backgroundColor: "#f5f5f5", borderWidth: 1, borderColor: "#e5e7eb",
     borderRadius: 12, paddingHorizontal: 16, paddingVertical: 13,
-    color: "#ffffff", fontSize: 14,
+    color: "#111827", fontSize: 14,
   },
   cardModalFooter: {
     paddingHorizontal: 20, paddingTop: 12,
-    borderTopWidth: 1, borderTopColor: "#2a2a2a",
-    backgroundColor: "#111111",
+    borderTopWidth: 1, borderTopColor: "#e5e7eb",
+    backgroundColor: "#f5f5f5",
   },
 });

@@ -67,7 +67,7 @@ export default function TicketsScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={18} color="#ffffff" />
+          <ArrowLeft size={18} color="#111827" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Ocorrências</Text>
@@ -82,7 +82,7 @@ export default function TicketsScreen() {
         <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : tickets.length === 0 ? (
         <View style={styles.center}>
-          <AlertCircle size={48} color="#2a2a2a" />
+          <AlertCircle size={48} color="#d1d5db" />
           <Text style={styles.emptyTitle}>Nenhuma ocorrência</Text>
           <Text style={styles.emptySub}>Abra uma solicitação usando o botão +</Text>
         </View>
@@ -123,7 +123,7 @@ export default function TicketsScreen() {
               <View style={styles.sheetHeader}>
                 <Text style={styles.sheetTitle}>Nova ocorrência</Text>
                 <TouchableOpacity onPress={() => setCreateModal(false)} style={styles.closeBtn}>
-                  <X size={16} color="#ffffff" />
+                  <X size={16} color="#111827" />
                 </TouchableOpacity>
               </View>
 
@@ -132,7 +132,7 @@ export default function TicketsScreen() {
                 value={form.title}
                 onChangeText={t => setForm(f => ({ ...f, title: t }))}
                 placeholder="Ex: Vazamento na garagem"
-                placeholderTextColor="#535353"
+                placeholderTextColor="#9ca3af"
                 style={styles.textInput}
               />
 
@@ -141,7 +141,7 @@ export default function TicketsScreen() {
                 value={form.description}
                 onChangeText={t => setForm(f => ({ ...f, description: t }))}
                 placeholder="Descreva o problema em detalhes"
-                placeholderTextColor="#535353"
+                placeholderTextColor="#9ca3af"
                 multiline
                 numberOfLines={3}
                 style={[styles.textInput, styles.textArea]}
@@ -185,7 +185,7 @@ export default function TicketsScreen() {
           <View style={[styles.root, { paddingTop: insets.top }]}>
             <View style={styles.header}>
               <TouchableOpacity onPress={() => setSelected(null)} style={styles.backBtn}>
-                <ArrowLeft size={18} color="#ffffff" />
+                <ArrowLeft size={18} color="#111827" />
               </TouchableOpacity>
               <View style={{ flex: 1 }}>
                 <Text style={styles.detailTitle} numberOfLines={1}>{selected?.title}</Text>
@@ -227,8 +227,8 @@ export default function TicketsScreen() {
                         {msg.isAdmin && (
                           <Text style={styles.adminLabel}>Administração</Text>
                         )}
-                        <Text style={styles.bubbleText}>{msg.body}</Text>
-                        <Text style={styles.bubbleTime}>
+                        <Text style={[styles.bubbleText, !msg.isAdmin && styles.bubbleTextMine]}>{msg.body}</Text>
+                        <Text style={[styles.bubbleTime, !msg.isAdmin && styles.bubbleTimeMine]}>
                           {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                         </Text>
                       </View>
@@ -242,7 +242,7 @@ export default function TicketsScreen() {
                       value={message}
                       onChangeText={setMessage}
                       placeholder="Mensagem..."
-                      placeholderTextColor="#535353"
+                      placeholderTextColor="#9ca3af"
                       style={styles.messageInput}
                     />
                     <TouchableOpacity
@@ -264,70 +264,70 @@ export default function TicketsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   header: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: "#2a2a2a",
+    borderBottomWidth: 1, borderBottomColor: "#e5e7eb",
     gap: 12,
   },
   backBtn: {
-    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    width: 36, height: 36, backgroundColor: "#e5e7eb",
     borderRadius: 18, alignItems: "center", justifyContent: "center",
   },
   addBtn: {
     width: 36, height: 36, backgroundColor: "#f97316",
     borderRadius: 12, alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: "#ffffff" },
-  headerSub: { fontSize: 12, color: "#9a9a9a", marginTop: 1 },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: "#111827" },
+  headerSub: { fontSize: 12, color: "#6b7280", marginTop: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, gap: 8 },
-  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
-  emptySub: { fontSize: 13, color: "#535353", textAlign: "center" },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#9ca3af" },
+  emptySub: { fontSize: 13, color: "#9ca3af", textAlign: "center" },
   listContent: { padding: 16, gap: 10 },
   card: {
-    backgroundColor: "#1a1a1a", borderRadius: 16,
-    borderWidth: 1, borderColor: "#2a2a2a", padding: 16,
+    backgroundColor: "#f5f5f5", borderRadius: 16,
+    borderWidth: 1, borderColor: "#e5e7eb", padding: 16,
   },
   cardRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
   statusPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
   statusText: { fontSize: 10, fontWeight: "700" },
-  categoryText: { color: "#535353", fontSize: 11 },
-  cardTitle: { color: "#ffffff", fontSize: 14, fontWeight: "700" },
-  cardDesc: { color: "#9a9a9a", fontSize: 12, marginTop: 4 },
+  categoryText: { color: "#9ca3af", fontSize: 11 },
+  cardTitle: { color: "#111827", fontSize: 14, fontWeight: "700" },
+  cardDesc: { color: "#6b7280", fontSize: 12, marginTop: 4 },
   cardFooter: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
-  cardMeta: { color: "#535353", fontSize: 11 },
+  cardMeta: { color: "#9ca3af", fontSize: 11 },
   // Modal
   modalOverlayWrap: { flex: 1, justifyContent: "flex-end" },
   modalBackdrop: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.6)" },
   sheet: {
-    backgroundColor: "#1a1a1a", borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: "#f5f5f5", borderTopLeftRadius: 24, borderTopRightRadius: 24,
     padding: 24,
   },
   sheetHeader: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20,
   },
-  sheetTitle: { color: "#ffffff", fontSize: 17, fontWeight: "700" },
+  sheetTitle: { color: "#111827", fontSize: 17, fontWeight: "700" },
   closeBtn: {
-    padding: 6, backgroundColor: "#2a2a2a", borderRadius: 8,
+    padding: 6, backgroundColor: "#e5e7eb", borderRadius: 8,
   },
   fieldLabel: {
-    color: "#9a9a9a", fontSize: 11, fontWeight: "700",
+    color: "#6b7280", fontSize: 11, fontWeight: "700",
     textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 6,
   },
   textInput: {
-    backgroundColor: "#242424", color: "#ffffff", borderRadius: 12,
+    backgroundColor: "#ffffff", color: "#111827", borderRadius: 12,
     paddingHorizontal: 16, paddingVertical: 12, fontSize: 14,
-    marginBottom: 16, borderWidth: 1, borderColor: "#2a2a2a",
+    marginBottom: 16, borderWidth: 1, borderColor: "#e5e7eb",
   },
   textArea: { textAlignVertical: "top", minHeight: 72 },
   chipRow: { flexDirection: "row", gap: 8 },
   chip: {
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#ffffff",
   },
   chipActive: { backgroundColor: "#f97316" },
-  chipText: { fontSize: 12, fontWeight: "600", color: "#9a9a9a" },
+  chipText: { fontSize: 12, fontWeight: "600", color: "#6b7280" },
   chipTextActive: { color: "#ffffff" },
   submitBtn: {
     backgroundColor: "#f97316", borderRadius: 999,
@@ -335,13 +335,13 @@ const styles = StyleSheet.create({
   },
   submitBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 15 },
   // Detail
-  detailTitle: { color: "#ffffff", fontWeight: "700", fontSize: 15 },
+  detailTitle: { color: "#111827", fontWeight: "700", fontSize: 15 },
   descCard: {
-    backgroundColor: "#1a1a1a", marginHorizontal: 16, marginTop: 12,
-    borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#2a2a2a",
+    backgroundColor: "#f5f5f5", marginHorizontal: 16, marginTop: 12,
+    borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#e5e7eb",
   },
-  descText: { color: "#e5e5e5", fontSize: 13 },
-  noMsgs: { color: "#535353", fontSize: 12, textAlign: "center", paddingVertical: 16 },
+  descText: { color: "#111827", fontSize: 13 },
+  noMsgs: { color: "#9ca3af", fontSize: 12, textAlign: "center", paddingVertical: 16 },
   msgRow: { flexDirection: "row" },
   msgLeft: { justifyContent: "flex-start" },
   msgRight: { justifyContent: "flex-end" },
@@ -350,24 +350,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12, paddingVertical: 8,
   },
   bubbleAdmin: {
-    backgroundColor: "#1a1a1a", borderTopLeftRadius: 4,
-    borderWidth: 1, borderColor: "#2a2a2a",
+    backgroundColor: "#f5f5f5", borderTopLeftRadius: 4,
+    borderWidth: 1, borderColor: "#e5e7eb",
   },
   bubbleMine: { backgroundColor: "#f97316", borderTopRightRadius: 4 },
   adminLabel: { color: "#f97316", fontSize: 10, fontWeight: "700", marginBottom: 4 },
-  bubbleText: { color: "#ffffff", fontSize: 13 },
-  bubbleTime: { color: "#9a9a9a", fontSize: 10, marginTop: 4 },
+  bubbleText: { color: "#111827", fontSize: 13 },
+  bubbleTextMine: { color: "#ffffff" },
+  bubbleTime: { color: "#6b7280", fontSize: 10, marginTop: 4 },
+  bubbleTimeMine: { color: "rgba(255,255,255,0.7)" },
   inputBar: {
     paddingHorizontal: 16, paddingTop: 12,
     flexDirection: "row", gap: 8,
-    borderTopWidth: 1, borderTopColor: "#2a2a2a",
-    backgroundColor: "#111111",
+    borderTopWidth: 1, borderTopColor: "#e5e7eb",
+    backgroundColor: "#f5f5f5",
   },
   messageInput: {
-    flex: 1, backgroundColor: "#242424",
-    borderWidth: 1, borderColor: "#2a2a2a",
+    flex: 1, backgroundColor: "#ffffff",
+    borderWidth: 1, borderColor: "#e5e7eb",
     borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10,
-    color: "#ffffff", fontSize: 14,
+    color: "#111827", fontSize: 14,
   },
   sendBtn: {
     width: 44, height: 44, backgroundColor: "#f97316",

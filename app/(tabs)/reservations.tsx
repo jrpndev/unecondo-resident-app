@@ -78,11 +78,11 @@ function CalendarPicker({
     <View style={styles.calendar}>
       <View style={styles.calHeader}>
         <TouchableOpacity onPress={prevMonth} style={styles.calNavBtn}>
-          <ChevronLeft size={18} color="#9a9a9a" />
+          <ChevronLeft size={18} color="#6b7280" />
         </TouchableOpacity>
         <Text style={styles.calMonth}>{MONTH_NAMES[viewMonth]} {viewYear}</Text>
         <TouchableOpacity onPress={nextMonth} style={styles.calNavBtn}>
-          <ChevronRight size={18} color="#9a9a9a" />
+          <ChevronRight size={18} color="#6b7280" />
         </TouchableOpacity>
       </View>
       <View style={styles.calWeekdays}>
@@ -119,7 +119,7 @@ function CalendarPicker({
                     styles.calDayText,
                     isSelected && { color: "#ffffff" },
                     isReserved && { color: "#f87171" },
-                    isPast && { color: "#3a3a3a" },
+                    isPast && { color: "#d1d5db" },
                   ]}>{day}</Text>
                 </View>
               </TouchableOpacity>
@@ -391,7 +391,7 @@ export default function ReservationsScreen() {
                 onPress={() => { setReserveModal(null); setRescheduleTarget(null); }}
                 style={styles.modalCloseBtn}
               >
-                <X size={18} color="#9a9a9a" />
+                <X size={18} color="#6b7280" />
               </TouchableOpacity>
             </View>
 
@@ -415,7 +415,7 @@ export default function ReservationsScreen() {
                   <TextInput
                     style={styles.fieldInput}
                     placeholder="09:00"
-                    placeholderTextColor="#535353"
+                    placeholderTextColor="#9ca3af"
                     value={form.startTime}
                     onChangeText={v => {
                       const d = v.replace(/\D/g, "").slice(0, 4);
@@ -430,7 +430,7 @@ export default function ReservationsScreen() {
                   <TextInput
                     style={styles.fieldInput}
                     placeholder="12:00"
-                    placeholderTextColor="#535353"
+                    placeholderTextColor="#9ca3af"
                     value={form.endTime}
                     onChangeText={v => {
                       const d = v.replace(/\D/g, "").slice(0, 4);
@@ -445,7 +445,7 @@ export default function ReservationsScreen() {
               <TextInput
                 style={[styles.fieldInput, { marginBottom: 16 }]}
                 placeholder="Observações (opcional)"
-                placeholderTextColor="#535353"
+                placeholderTextColor="#9ca3af"
                 value={form.notes}
                 onChangeText={v => setForm(f => ({ ...f, notes: v }))}
               />
@@ -479,7 +479,7 @@ export default function ReservationsScreen() {
                   <TextInput
                     style={styles.fieldInput}
                     placeholder="NOME NO CARTÃO"
-                    placeholderTextColor="#535353"
+                    placeholderTextColor="#9ca3af"
                     value={cardHolderName}
                     onChangeText={setCardHolderName}
                     autoCapitalize="characters"
@@ -488,7 +488,7 @@ export default function ReservationsScreen() {
                   <TextInput
                     style={styles.fieldInput}
                     placeholder="0000 0000 0000 0000"
-                    placeholderTextColor="#535353"
+                    placeholderTextColor="#9ca3af"
                     value={cardNumberDisplay}
                     onChangeText={v => setCardNumberDisplay(v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim())}
                     keyboardType="numeric"
@@ -498,7 +498,7 @@ export default function ReservationsScreen() {
                     <TextInput
                       style={[styles.fieldInput, { flex: 1 }]}
                       placeholder="MM/AA"
-                      placeholderTextColor="#535353"
+                      placeholderTextColor="#9ca3af"
                       value={cardExpiry}
                       onChangeText={v => {
                         const digits = v.replace(/\D/g, "").slice(0, 4);
@@ -510,7 +510,7 @@ export default function ReservationsScreen() {
                     <TextInput
                       style={[styles.fieldInput, { flex: 1 }]}
                       placeholder="CVC"
-                      placeholderTextColor="#535353"
+                      placeholderTextColor="#9ca3af"
                       value={cardCcv}
                       onChangeText={v => setCardCcv(v.replace(/\D/g, "").slice(0, 4))}
                       keyboardType="numeric"
@@ -574,13 +574,13 @@ export default function ReservationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   loader: { flex: 1, alignItems: "center", justifyContent: "center" },
   tabBar: {
     flexDirection: "row",
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
     borderBottomWidth: 1,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: "#e5e7eb",
     paddingHorizontal: 20,
   },
   tabItem: {
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#535353",
+    color: "#9ca3af",
   },
   tabTextActive: {
     color: "#f97316",
@@ -603,18 +603,18 @@ const styles = StyleSheet.create({
   },
   listPad: { padding: 20 },
   spaceCard: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 16,
     marginBottom: 12,
   },
-  spaceName: { fontSize: 16, fontWeight: "700", color: "#ffffff" },
-  spaceDesc: { fontSize: 13, color: "#9a9a9a", marginTop: 3 },
+  spaceName: { fontSize: 16, fontWeight: "700", color: "#111827" },
+  spaceDesc: { fontSize: 13, color: "#6b7280", marginTop: 3 },
   spaceMeta: { flexDirection: "row", gap: 14, marginTop: 6 },
-  spaceMetaText: { fontSize: 12, color: "#9a9a9a" },
-  spaceRules: { fontSize: 11, color: "#535353", fontStyle: "italic", marginTop: 4 },
+  spaceMetaText: { fontSize: 12, color: "#6b7280" },
+  spaceRules: { fontSize: 11, color: "#9ca3af", fontStyle: "italic", marginTop: 4 },
   reserveBtn: {
     backgroundColor: "#f97316",
     borderRadius: 999,
@@ -627,17 +627,17 @@ const styles = StyleSheet.create({
   },
   reserveBtnText: { color: "#ffffff", fontWeight: "700", fontSize: 14 },
   resCard: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 16,
     marginBottom: 12,
   },
   resCardTop: { flexDirection: "row", alignItems: "flex-start" },
-  resSpace: { fontSize: 15, fontWeight: "700", color: "#ffffff" },
-  resDatetime: { fontSize: 13, color: "#9a9a9a", marginTop: 2 },
-  resNotes: { fontSize: 11, color: "#535353", fontStyle: "italic", marginTop: 2 },
+  resSpace: { fontSize: 15, fontWeight: "700", color: "#111827" },
+  resDatetime: { fontSize: 13, color: "#6b7280", marginTop: 2 },
+  resNotes: { fontSize: 11, color: "#9ca3af", fontStyle: "italic", marginTop: 2 },
   pixAlert: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
   pixAlertText: { fontSize: 12, color: "#f97316", fontWeight: "600" },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
@@ -660,11 +660,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   cancelBtnText: { fontSize: 12, fontWeight: "600", color: "#f87171" },
-  empty: { textAlign: "center", color: "#535353", paddingTop: 60, fontSize: 14 },
+  empty: { textAlign: "center", color: "#9ca3af", paddingTop: 60, fontSize: 14 },
   // Modal
   modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "flex-end" },
   modalSheet: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -672,63 +672,63 @@ const styles = StyleSheet.create({
     maxHeight: "92%",
   },
   modalHandle: {
-    width: 36, height: 4, backgroundColor: "#2a2a2a",
+    width: 36, height: 4, backgroundColor: "#ffffff",
     borderRadius: 2, alignSelf: "center", marginTop: 12, marginBottom: 16,
   },
   modalHeader: {
     flexDirection: "row", alignItems: "flex-start",
     justifyContent: "space-between", marginBottom: 16,
   },
-  modalTitle: { fontSize: 17, fontWeight: "700", color: "#ffffff" },
+  modalTitle: { fontSize: 17, fontWeight: "700", color: "#111827" },
   modalPrice: { fontSize: 14, color: "#f97316", fontWeight: "600", marginTop: 2 },
   modalCloseBtn: {
-    width: 32, height: 32, backgroundColor: "#242424",
+    width: 32, height: 32, backgroundColor: "#ffffff",
     borderRadius: 16, alignItems: "center", justifyContent: "center",
   },
   calendar: {
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     borderRadius: 14,
     padding: 12,
     marginBottom: 12,
   },
   calHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
   calNavBtn: { width: 32, height: 32, alignItems: "center", justifyContent: "center" },
-  calMonth: { fontSize: 15, fontWeight: "700", color: "#ffffff" },
+  calMonth: { fontSize: 15, fontWeight: "700", color: "#111827" },
   calWeekdays: { flexDirection: "row", marginBottom: 4 },
-  calWeekday: { fontSize: 11, color: "#535353", fontWeight: "600", textAlign: "center" },
+  calWeekday: { fontSize: 11, color: "#9ca3af", fontWeight: "600", textAlign: "center" },
   calDay: {
     width: 32, height: 32, borderRadius: 16,
     alignItems: "center", justifyContent: "center",
   },
   calDaySelected: { backgroundColor: "#f97316" },
   calDayReserved: { backgroundColor: "#ef444422" },
-  calDayText: { fontSize: 13, fontWeight: "500", color: "#ffffff" },
-  calLegend: { flexDirection: "row", gap: 16, marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: "#2a2a2a" },
+  calDayText: { fontSize: 13, fontWeight: "500", color: "#111827" },
+  calLegend: { flexDirection: "row", gap: 16, marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: "#e5e7eb" },
   calLegendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
   calLegendDot: { width: 10, height: 10, borderRadius: 5 },
-  calLegendText: { fontSize: 11, color: "#535353" },
+  calLegendText: { fontSize: 11, color: "#9ca3af" },
   selectedDateText: { fontSize: 12, color: "#f97316", fontWeight: "600", marginBottom: 12 },
   fieldLabel: {
-    fontSize: 10, fontWeight: "700", color: "#535353",
+    fontSize: 10, fontWeight: "700", color: "#9ca3af",
     letterSpacing: 1.2, marginBottom: 8,
   },
   fieldInput: {
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: "#ffffff",
+    color: "#111827",
     fontSize: 14,
   },
   payMethodBtn: {
     flex: 1, paddingVertical: 10, borderRadius: 12,
-    borderWidth: 1, borderColor: "#2a2a2a",
-    alignItems: "center", backgroundColor: "#242424",
+    borderWidth: 1, borderColor: "#e5e7eb",
+    alignItems: "center", backgroundColor: "#ffffff",
   },
   payMethodBtnActive: { borderColor: "#f97316", backgroundColor: "#f9731610" },
-  payMethodText: { fontSize: 12, fontWeight: "700", color: "#535353" },
+  payMethodText: { fontSize: 12, fontWeight: "700", color: "#9ca3af" },
   confirmBtn: {
     backgroundColor: "#f97316",
     borderRadius: 999,
@@ -743,18 +743,18 @@ const styles = StyleSheet.create({
     justifyContent: "center", paddingHorizontal: 20,
   },
   pixModalCard: {
-    backgroundColor: "#1a1a1a", borderRadius: 20,
-    padding: 24, borderWidth: 1, borderColor: "#2a2a2a",
+    backgroundColor: "#f5f5f5", borderRadius: 20,
+    padding: 24, borderWidth: 1, borderColor: "#e5e7eb",
   },
-  pixTitle: { fontSize: 18, fontWeight: "700", color: "#ffffff", marginBottom: 4 },
-  pixSub: { fontSize: 13, color: "#9a9a9a", marginBottom: 16 },
+  pixTitle: { fontSize: 18, fontWeight: "700", color: "#111827", marginBottom: 4 },
+  pixSub: { fontSize: 13, color: "#6b7280", marginBottom: 16 },
   pixAmount: { fontSize: 28, fontWeight: "800", color: "#f97316", marginBottom: 16 },
   pixKeyBox: {
-    backgroundColor: "#242424", borderRadius: 12,
-    borderWidth: 1, borderColor: "#2a2a2a", padding: 12, marginBottom: 4,
+    backgroundColor: "#ffffff", borderRadius: 12,
+    borderWidth: 1, borderColor: "#e5e7eb", padding: 12, marginBottom: 4,
   },
-  pixKeyText: { fontSize: 12, fontFamily: "monospace", color: "#d0d0d0" },
+  pixKeyText: { fontSize: 12, fontFamily: "monospace", color: "#111827" },
   copyRow: { flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 8, marginBottom: 8 },
   copyText: { fontSize: 13, fontWeight: "700", color: "#f97316" },
-  pixInfo: { fontSize: 12, color: "#535353", marginBottom: 16, lineHeight: 18 },
+  pixInfo: { fontSize: 12, color: "#9ca3af", marginBottom: 16, lineHeight: 18 },
 });

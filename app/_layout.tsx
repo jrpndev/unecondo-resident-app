@@ -285,7 +285,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: "#0f172a" },
+          contentStyle: { backgroundColor: "#f5f5f5" },
         }}
       >
         <Stack.Screen name="(auth)" />

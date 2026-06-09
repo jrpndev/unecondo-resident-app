@@ -23,7 +23,7 @@ export function Input({ label, error, mask, onChangeText, style, ...props }: Pro
           error ? styles.inputError : null,
           style as any,
         ]}
-        placeholderTextColor="#5a5a5a"
+        placeholderTextColor="#9ca3af"
         onChangeText={handleChange}
         {...props}
       />
@@ -43,17 +43,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1.2,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    color: "#ffffff",
+    color: "#111827",
     fontSize: 15,
   },
   inputError: {

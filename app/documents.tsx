@@ -42,7 +42,7 @@ export default function DocumentsScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={18} color="#ffffff" />
+          <ArrowLeft size={18} color="#111827" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Documentos</Text>
@@ -54,7 +54,7 @@ export default function DocumentsScreen() {
         <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : docs.length === 0 ? (
         <View style={styles.center}>
-          <FileText size={48} color="#2a2a2a" />
+          <FileText size={48} color="#d1d5db" />
           <Text style={styles.emptyTitle}>Nenhum documento</Text>
           <Text style={styles.emptySub}>Os documentos do condomínio aparecerão aqui</Text>
         </View>
@@ -89,7 +89,7 @@ export default function DocumentsScreen() {
                         {new Date(doc.createdAt).toLocaleDateString("pt-BR")}
                       </Text>
                     </View>
-                    {doc.fileUrl && <Download size={16} color="#9a9a9a" />}
+                    {doc.fileUrl && <Download size={16} color="#6b7280" />}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -102,37 +102,37 @@ export default function DocumentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   header: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: "#2a2a2a",
+    borderBottomWidth: 1, borderBottomColor: "#e5e7eb",
     gap: 12,
   },
   backBtn: {
-    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    width: 36, height: 36, backgroundColor: "#ffffff",
     borderRadius: 18, alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: "#ffffff" },
-  headerSub: { fontSize: 12, color: "#9a9a9a", marginTop: 1 },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: "#111827" },
+  headerSub: { fontSize: 12, color: "#6b7280", marginTop: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, gap: 8 },
-  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
-  emptySub: { fontSize: 13, color: "#535353", textAlign: "center" },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#9ca3af" },
+  emptySub: { fontSize: 13, color: "#9ca3af", textAlign: "center" },
   listContent: { padding: 16 },
   group: { marginBottom: 24 },
   groupLabel: {
-    color: "#535353", fontSize: 10, fontWeight: "700",
+    color: "#9ca3af", fontSize: 10, fontWeight: "700",
     textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12,
   },
   groupCard: {
-    backgroundColor: "#1a1a1a", borderRadius: 16,
-    borderWidth: 1, borderColor: "#2a2a2a", overflow: "hidden",
+    backgroundColor: "#f5f5f5", borderRadius: 16,
+    borderWidth: 1, borderColor: "#e5e7eb", overflow: "hidden",
   },
   docRow: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 16, paddingVertical: 16,
   },
-  docRowBorder: { borderBottomWidth: 1, borderBottomColor: "#2a2a2a" },
+  docRowBorder: { borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
   docIcon: {
     width: 44, height: 44, backgroundColor: "#f9731618",
     borderRadius: 12, alignItems: "center", justifyContent: "center",
@@ -140,6 +140,6 @@ const styles = StyleSheet.create({
   },
   docIconText: { fontSize: 20 },
   docInfo: { flex: 1, minWidth: 0 },
-  docTitle: { color: "#ffffff", fontSize: 13, fontWeight: "700" },
-  docDate: { color: "#535353", fontSize: 11, marginTop: 2 },
+  docTitle: { color: "#111827", fontSize: 13, fontWeight: "700" },
+  docDate: { color: "#9ca3af", fontSize: 11, marginTop: 2 },
 });

@@ -23,7 +23,7 @@ function MenuRow({ icon, label, sub, onPress }: MenuItem) {
         <Text style={styles.menuLabel}>{label}</Text>
         <Text style={styles.menuSub}>{sub}</Text>
       </View>
-      <ChevronRight size={16} color="#535353" />
+      <ChevronRight size={16} color="#9ca3af" />
     </TouchableOpacity>
   );
 }
@@ -140,7 +140,7 @@ export default function MoreScreen() {
           />
           <View style={styles.menuDivider} />
           <MenuRow
-            icon={<Settings size={20} color="#9a9a9a" />}
+            icon={<Settings size={20} color="#6b7280" />}
             label="Configurações"
             sub="Notificações e preferências"
             onPress={() => router.push("/settings")}
@@ -165,7 +165,7 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
   },
   userHeader: {
     alignItems: "center",
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderWidth: 2,
     borderColor: "#f97316",
     alignItems: "center",
@@ -191,11 +191,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
   },
   userEmail: {
     fontSize: 13,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 3,
   },
   roleBadge: {
@@ -220,15 +220,15 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#535353",
+    color: "#9ca3af",
     letterSpacing: 1.5,
     marginBottom: 10,
   },
   menuGroup: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     overflow: "hidden",
   },
   menuRow: {
@@ -239,14 +239,14 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: 1,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#ffffff",
     marginLeft: 56,
   },
   menuIcon: {
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -257,20 +257,20 @@ const styles = StyleSheet.create({
   menuLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#111827",
   },
   menuSub: {
     fontSize: 12,
-    color: "#535353",
+    color: "#9ca3af",
     marginTop: 1,
   },
   logoutRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#3a1a1a",
+    borderColor: "#fecaca",
     paddingHorizontal: 16,
     paddingVertical: 14,
   },

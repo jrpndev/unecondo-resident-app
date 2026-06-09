@@ -41,7 +41,7 @@ export function SuspendedScreen({ type, message, onRetry }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#f5f5f5',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
@@ -55,17 +55,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   iconOrange: { backgroundColor: '#fff7ed' },
-  iconGray:   { backgroundColor: '#1e293b' },
+  iconGray:   { backgroundColor: '#ffffff' },
   title: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#f1f5f9',
+    color: '#111827',
     textAlign: 'center',
     marginBottom: 12,
   },
   message: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: '#6b7280',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 28,

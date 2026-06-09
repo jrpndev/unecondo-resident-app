@@ -6,6 +6,6 @@ export default function AuthLayout() {
   const { user, isLoading } = useAuthStore();
   if (!isLoading && user && !user.mustChangePassword) return <Redirect href="/(tabs)" />;
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#0f172a" } }} />
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#f5f5f5" } }} />
   );
 }

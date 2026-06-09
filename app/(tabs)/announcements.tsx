@@ -143,7 +143,7 @@ export default function AnnouncementsScreen() {
               <Text style={styles.cardDate}>{fmtDate(item.createdAt)}</Text>
               {isAdmin && (
                 <TouchableOpacity onPress={() => openEdit(item)} style={styles.editBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                  <Pencil size={13} color="#535353" />
+                  <Pencil size={13} color="#9ca3af" />
                 </TouchableOpacity>
               )}
             </View>
@@ -203,7 +203,7 @@ export default function AnnouncementsScreen() {
                   onPress={() => setModalVisible(false)}
                   style={styles.modalClose}
                 >
-                  <X size={18} color="#9a9a9a" />
+                  <X size={18} color="#6b7280" />
                 </TouchableOpacity>
               </View>
 
@@ -212,7 +212,7 @@ export default function AnnouncementsScreen() {
                 <TextInput
                   style={styles.fieldInput}
                   placeholder="Ex: Manutenção na piscina"
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   value={form.title}
                   onChangeText={v => setForm(f => ({ ...f, title: v }))}
                 />
@@ -221,7 +221,7 @@ export default function AnnouncementsScreen() {
                 <TextInput
                   style={[styles.fieldInput, styles.fieldMultiline]}
                   placeholder="Descreva o comunicado em detalhes..."
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   value={form.body}
                   onChangeText={v => setForm(f => ({ ...f, body: v }))}
                   multiline
@@ -233,7 +233,7 @@ export default function AnnouncementsScreen() {
                 <TextInput
                   style={styles.fieldInput}
                   placeholder="Ex: 2026-06-01"
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   value={form.startsAt}
                   onChangeText={v => setForm(f => ({ ...f, startsAt: v }))}
                   keyboardType="numeric"
@@ -243,7 +243,7 @@ export default function AnnouncementsScreen() {
                 <TextInput
                   style={styles.fieldInput}
                   placeholder="Ex: 2026-06-30"
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   value={form.expiresAt}
                   onChangeText={v => setForm(f => ({ ...f, expiresAt: v }))}
                   keyboardType="numeric"
@@ -253,7 +253,7 @@ export default function AnnouncementsScreen() {
                 <TextInput
                   style={styles.fieldInput}
                   placeholder="Ex: 7"
-                  placeholderTextColor="#535353"
+                  placeholderTextColor="#9ca3af"
                   value={form.displayDurationDays}
                   onChangeText={v => setForm(f => ({ ...f, displayDurationDays: v.replace(/\D/g, "") }))}
                   keyboardType="numeric"
@@ -267,7 +267,7 @@ export default function AnnouncementsScreen() {
                   <Switch
                     value={form.isPinned}
                     onValueChange={v => setForm(f => ({ ...f, isPinned: v }))}
-                    trackColor={{ false: "#2a2a2a", true: "#f97316" }}
+                    trackColor={{ false: "#d1d5db", true: "#f97316" }}
                     thumbColor="#ffffff"
                   />
                 </View>
@@ -298,11 +298,11 @@ export default function AnnouncementsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
-  loading: { flex: 1, backgroundColor: "#111111", alignItems: "center", justifyContent: "center" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
+  loading: { flex: 1, backgroundColor: "#f5f5f5", alignItems: "center", justifyContent: "center" },
   list: { padding: 20, paddingTop: 12 },
   empty: { alignItems: "center", justifyContent: "center", paddingTop: 80 },
-  emptyText: { fontSize: 15, color: "#535353" },
+  emptyText: { fontSize: 15, color: "#9ca3af" },
   addBtn: {
     width: 36,
     height: 36,
@@ -312,10 +312,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   card: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 16,
     marginBottom: 10,
   },
@@ -343,12 +343,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
     flex: 1,
     marginRight: 8,
   },
   cardTitleRead: {
-    color: "#535353",
+    color: "#9ca3af",
     fontWeight: "500",
   },
   unreadDot: {
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     fontSize: 13,
-    color: "#9a9a9a",
+    color: "#6b7280",
     lineHeight: 19,
   },
   cardImage: {
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   cardDate: {
     fontSize: 11,
-    color: "#535353",
+    color: "#9ca3af",
   },
   editBtn: {
     padding: 4,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalSheet: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 36,
     height: 4,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#ffffff",
     borderRadius: 2,
     alignSelf: "center",
     marginTop: 12,
@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
   },
   modalClose: {
     width: 32,
     height: 32,
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -427,19 +427,19 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#535353",
+    color: "#9ca3af",
     letterSpacing: 1.2,
     marginBottom: 8,
     marginTop: 4,
   },
   fieldInput: {
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 13,
-    color: "#ffffff",
+    color: "#111827",
     fontSize: 14,
     marginBottom: 16,
   },
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   toggleRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#242424",
+    backgroundColor: "#ffffff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
@@ -458,11 +458,11 @@ const styles = StyleSheet.create({
   toggleLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#111827",
   },
   toggleSub: {
     fontSize: 12,
-    color: "#535353",
+    color: "#9ca3af",
     marginTop: 2,
   },
   saveBtn: {

@@ -18,7 +18,7 @@ const ORIGIN_COLORS: Record<string, { bg: string; text: string }> = {
   MERCADO_LIVRE: { bg: "#f59e0b20", text: "#fbbf24" },
   CORREIOS:      { bg: "#3b82f620", text: "#60a5fa" },
   SHEIN:         { bg: "#ec489920", text: "#f472b6" },
-  OUTRO:         { bg: "#ffffff18", text: "#9a9a9a" },
+  OUTRO:         { bg: "#ffffff18", text: "#9ca3af" },
 };
 
 function getOriginLabel(value: string) {
@@ -68,7 +68,7 @@ export const PackageCard = React.memo(function PackageCard({
           )}
           {pkg.category && (
             <View style={[styles.badge, { backgroundColor: "#ffffff18" }]}>
-              <Text style={[styles.badgeText, { color: "#9a9a9a" }]}>
+              <Text style={[styles.badgeText, { color: "#6b7280" }]}>
                 {pkg.category}
               </Text>
             </View>
@@ -78,14 +78,14 @@ export const PackageCard = React.memo(function PackageCard({
 
       <View style={styles.footer}>
         <View style={styles.footerItem}>
-          <MapPin size={11} color="#5a5a5a" />
+          <MapPin size={11} color="#9ca3af" />
           <Text style={styles.footerText}>
             {pkg.unit?.condo?.name} · Unid. {pkg.unit?.number}
           </Text>
         </View>
         {pkg.resident && (
           <View style={styles.footerItem}>
-            <User size={11} color="#5a5a5a" />
+            <User size={11} color="#9ca3af" />
             <Text style={styles.footerText}>{pkg.resident.name}</Text>
           </View>
         )}
@@ -103,10 +103,10 @@ export const PackageCard = React.memo(function PackageCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 16,
     marginBottom: 10,
   },
@@ -137,11 +137,11 @@ const styles = StyleSheet.create({
   trackingCode: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
   },
   description: {
     fontSize: 13,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 2,
   },
   badgeRow: {
@@ -172,11 +172,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: "#5a5a5a",
+    color: "#9ca3af",
   },
   date: {
     fontSize: 11,
-    color: "#5a5a5a",
+    color: "#9ca3af",
     marginTop: 6,
   },
   deliveredDate: {

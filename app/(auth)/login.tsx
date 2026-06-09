@@ -288,7 +288,7 @@ export default function LoginScreen() {
                           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                           style={{ padding: 4 }}
                         >
-                          <X size={14} color="#535353" />
+                          <X size={14} color="#9ca3af" />
                         </TouchableOpacity>
                       </TouchableOpacity>
                     );
@@ -337,8 +337,8 @@ export default function LoginScreen() {
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
                       {showPassword
-                        ? <EyeOff size={20} color="#535353" />
-                        : <Eye size={20} color="#535353" />}
+                        ? <EyeOff size={20} color="#9ca3af" />
+                        : <Eye size={20} color="#9ca3af" />}
                     </TouchableOpacity>
                   </View>
                 )}
@@ -369,7 +369,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
   },
   hero: {
     paddingTop: 80,
@@ -394,12 +394,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 34,
     fontWeight: "800",
-    color: "#ffffff",
+    color: "#111827",
     letterSpacing: -0.5,
   },
   heroSub: {
     fontSize: 14,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 6,
     textAlign: "center",
   },
@@ -411,12 +411,12 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
     marginBottom: 4,
   },
   sub: {
     fontSize: 14,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginBottom: 28,
   },
   bioCenter: {
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   },
   bioEmail: {
     fontSize: 14,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginBottom: 32,
   },
   bioBtn: {
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
   },
   bioHint: {
     fontSize: 14,
-    color: "#535353",
+    color: "#9ca3af",
     marginTop: 20,
     fontWeight: "500",
   },
@@ -459,11 +459,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#ffffff",
   },
   dividerText: {
     fontSize: 12,
-    color: "#535353",
+    color: "#9ca3af",
     marginHorizontal: 12,
   },
   switchBtn: {
@@ -482,17 +482,17 @@ const styles = StyleSheet.create({
   savedLabel: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#535353",
+    color: "#9ca3af",
     letterSpacing: 1.5,
     marginBottom: 12,
   },
   accountChip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 12,
     marginBottom: 8,
   },
@@ -513,12 +513,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   accountName: {
-    color: "#ffffff",
+    color: "#111827",
     fontSize: 14,
     fontWeight: "600",
   },
   accountEmail: {
-    color: "#535353",
+    color: "#9ca3af",
     fontSize: 12,
     marginTop: 1,
   },

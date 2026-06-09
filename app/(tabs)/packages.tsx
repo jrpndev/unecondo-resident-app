@@ -40,11 +40,11 @@ export default function PackagesScreen() {
       {/* Search + filters */}
       <View style={styles.filterArea}>
         <View style={styles.searchBar}>
-          <Search size={15} color="#535353" />
+          <Search size={15} color="#9ca3af" />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar código, origem..."
-            placeholderTextColor="#535353"
+            placeholderTextColor="#9ca3af"
             value={search}
             onChangeText={setSearch}
           />
@@ -80,7 +80,7 @@ export default function PackagesScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Package2 size={48} color="#2a2a2a" />
+            <Package2 size={48} color="#d1d5db" />
             <Text style={styles.emptyText}>Nenhuma encomenda encontrada</Text>
           </View>
         }
@@ -95,11 +95,11 @@ export default function PackagesScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
   },
   loading: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -107,14 +107,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 11,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: "#ffffff",
+    color: "#111827",
   },
   chips: {
     flexDirection: "row",
@@ -140,19 +140,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   chipInactive: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
   },
   chipText: {
     fontSize: 12,
     fontWeight: "700",
   },
   chipTextActive: {
-    color: "#111111",
+    color: "#111827",
   },
   chipTextInactive: {
-    color: "#9a9a9a",
+    color: "#6b7280",
   },
   listContent: {
     paddingHorizontal: 20,
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 15,
-    color: "#535353",
+    color: "#9ca3af",
     fontWeight: "500",
   },
 });

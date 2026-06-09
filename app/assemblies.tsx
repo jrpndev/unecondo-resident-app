@@ -56,7 +56,7 @@ export default function AssembliesScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={18} color="#ffffff" />
+          <ArrowLeft size={18} color="#111827" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Assembleias</Text>
@@ -68,7 +68,7 @@ export default function AssembliesScreen() {
         <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : assemblies.length === 0 ? (
         <View style={styles.center}>
-          <Vote size={48} color="#2a2a2a" />
+          <Vote size={48} color="#d1d5db" />
           <Text style={styles.emptyTitle}>Nenhuma assembleia</Text>
           <Text style={styles.emptySub}>As assembleias virtuais aparecerão aqui</Text>
         </View>
@@ -103,7 +103,7 @@ export default function AssembliesScreen() {
         <View style={[styles.root, { paddingTop: insets.top }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setSelected(null)} style={styles.backBtn}>
-              <ArrowLeft size={18} color="#ffffff" />
+              <ArrowLeft size={18} color="#111827" />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={styles.detailTitle} numberOfLines={1}>{selected?.title}</Text>
@@ -180,7 +180,7 @@ export default function AssembliesScreen() {
                               choice === "NO" && styles.voteBtnNo,
                             ]}
                           >
-                            <Text style={styles.voteBtnText}>
+                            <Text style={[styles.voteBtnText, (choice === "YES" || choice === "NO") && styles.voteBtnTextActive]}>
                               {choice === "YES" ? "Sim" : choice === "NO" ? "Não" : "Abstenção"}
                             </Text>
                           </TouchableOpacity>
@@ -203,56 +203,56 @@ export default function AssembliesScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   header: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: "#2a2a2a",
+    borderBottomWidth: 1, borderBottomColor: "#e5e7eb",
     gap: 12,
   },
   backBtn: {
-    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    width: 36, height: 36, backgroundColor: "#e5e7eb",
     borderRadius: 18, alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: "#ffffff" },
-  headerSub: { fontSize: 12, color: "#9a9a9a", marginTop: 1 },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: "#111827" },
+  headerSub: { fontSize: 12, color: "#6b7280", marginTop: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, gap: 8 },
-  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
-  emptySub: { fontSize: 13, color: "#535353", textAlign: "center" },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#9ca3af" },
+  emptySub: { fontSize: 13, color: "#9ca3af", textAlign: "center" },
   listContent: { padding: 16, gap: 10 },
   card: {
-    backgroundColor: "#1a1a1a", borderRadius: 16,
-    borderWidth: 1, borderColor: "#2a2a2a", padding: 16,
+    backgroundColor: "#f5f5f5", borderRadius: 16,
+    borderWidth: 1, borderColor: "#e5e7eb", padding: 16,
   },
   cardRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
   statusPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
   statusText: { fontSize: 10, fontWeight: "700" },
-  cardTitle: { color: "#ffffff", fontSize: 14, fontWeight: "700" },
-  cardDate: { color: "#9a9a9a", fontSize: 12, marginTop: 4 },
-  cardMeta: { color: "#535353", fontSize: 11 },
+  cardTitle: { color: "#111827", fontSize: 14, fontWeight: "700" },
+  cardDate: { color: "#6b7280", fontSize: 12, marginTop: 4 },
+  cardMeta: { color: "#9ca3af", fontSize: 11 },
   // Detail
-  detailTitle: { color: "#ffffff", fontWeight: "700", fontSize: 16 },
+  detailTitle: { color: "#111827", fontWeight: "700", fontSize: 16 },
   detailContent: { padding: 16, gap: 12 },
   infoCard: {
-    backgroundColor: "#1a1a1a", borderRadius: 12,
-    padding: 12, borderWidth: 1, borderColor: "#2a2a2a",
+    backgroundColor: "#f5f5f5", borderRadius: 12,
+    padding: 12, borderWidth: 1, borderColor: "#e5e7eb",
   },
-  infoDate: { color: "#9a9a9a", fontSize: 12 },
-  infoDesc: { color: "#e5e5e5", fontSize: 13, marginTop: 8 },
+  infoDate: { color: "#6b7280", fontSize: 12 },
+  infoDesc: { color: "#111827", fontSize: 13, marginTop: 8 },
   agendaCard: {
-    backgroundColor: "#1a1a1a", borderRadius: 16,
-    borderWidth: 1, borderColor: "#2a2a2a", padding: 16,
+    backgroundColor: "#f5f5f5", borderRadius: 16,
+    borderWidth: 1, borderColor: "#e5e7eb", padding: 16,
   },
   agendaLabel: {
-    color: "#535353", fontSize: 10, fontWeight: "700",
+    color: "#9ca3af", fontSize: 10, fontWeight: "700",
     textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 4,
   },
-  agendaTitle: { color: "#ffffff", fontSize: 14, fontWeight: "700", marginBottom: 8 },
-  agendaDesc: { color: "#9a9a9a", fontSize: 12, marginBottom: 12 },
+  agendaTitle: { color: "#111827", fontSize: 14, fontWeight: "700", marginBottom: 8 },
+  agendaDesc: { color: "#6b7280", fontSize: 12, marginBottom: 12 },
   voteBar: { marginBottom: 12 },
   voteTrack: {
     flexDirection: "row", borderRadius: 999, overflow: "hidden",
-    height: 8, backgroundColor: "#2a2a2a",
+    height: 8, backgroundColor: "#ffffff",
   },
   voteSegment: {},
   voteNumbers: { flexDirection: "row", justifyContent: "space-between", marginTop: 6 },
@@ -266,10 +266,12 @@ const styles = StyleSheet.create({
   voteActions: { flexDirection: "row", gap: 8, marginTop: 4 },
   voteBtn: {
     flex: 1, paddingVertical: 10, borderRadius: 999,
-    alignItems: "center", backgroundColor: "#2a2a2a",
+    alignItems: "center", backgroundColor: "#ffffff",
+    borderWidth: 1, borderColor: "#e5e7eb",
   },
-  voteBtnYes: { backgroundColor: "#16a34a" },
-  voteBtnNo: { backgroundColor: "#dc2626" },
-  voteBtnText: { color: "#ffffff", fontSize: 12, fontWeight: "700" },
-  draftNote: { color: "#535353", fontSize: 11, textAlign: "center", marginTop: 4 },
+  voteBtnYes: { backgroundColor: "#16a34a", borderColor: "#16a34a" },
+  voteBtnNo: { backgroundColor: "#dc2626", borderColor: "#dc2626" },
+  voteBtnText: { color: "#111827", fontSize: 12, fontWeight: "700" },
+  voteBtnTextActive: { color: "#ffffff" },
+  draftNote: { color: "#9ca3af", fontSize: 11, textAlign: "center", marginTop: 4 },
 });

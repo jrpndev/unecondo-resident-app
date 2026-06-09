@@ -124,7 +124,7 @@ export default function HomeScreen() {
                 <Text style={styles.announcementTitle} numberOfLines={1}>{a.title}</Text>
                 <Text style={styles.announcementBody} numberOfLines={2}>{a.body}</Text>
               </View>
-              <ChevronRight size={14} color="#5a5a5a" />
+              <ChevronRight size={14} color="#9ca3af" />
             </TouchableOpacity>
           ))}
         </View>
@@ -138,7 +138,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
   },
   header: {
     paddingHorizontal: 24,
@@ -146,13 +146,13 @@ const styles = StyleSheet.create({
   },
   headerSub: {
     fontSize: 14,
-    color: "#9a9a9a",
+    color: "#6b7280",
     fontWeight: "500",
   },
   headerName: {
     fontSize: 32,
     fontWeight: "800",
-    color: "#ffffff",
+    color: "#111827",
     letterSpacing: -0.5,
   },
   summaryGrid: {
@@ -165,10 +165,10 @@ const styles = StyleSheet.create({
   summaryCard: {
     flex: 1,
     minWidth: "45%",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 16,
   },
   summaryIcon: {
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#ffffff",
+    color: "#111827",
     letterSpacing: -0.5,
   },
   summaryLabel: {
     fontSize: 12,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 2,
     fontWeight: "500",
   },
@@ -221,15 +221,15 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#535353",
+    color: "#9ca3af",
     letterSpacing: 1.5,
     marginBottom: 12,
   },
   announcementCard: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     borderLeftWidth: 3,
     borderLeftColor: "#f97316",
     padding: 14,
@@ -248,11 +248,11 @@ const styles = StyleSheet.create({
   announcementTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
   },
   announcementBody: {
     fontSize: 12,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 2,
   },
 });

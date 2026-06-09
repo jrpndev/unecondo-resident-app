@@ -87,7 +87,7 @@ export default function ChangePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   hero: {
     paddingTop: 80, paddingBottom: 48, paddingHorizontal: 32, alignItems: "center",
   },
@@ -97,12 +97,12 @@ const styles = StyleSheet.create({
     shadowColor: "#f97316", shadowOpacity: 0.4, shadowRadius: 24,
     shadowOffset: { width: 0, height: 8 }, elevation: 14,
   },
-  heroTitle: { fontSize: 28, fontWeight: "800", color: "#ffffff", textAlign: "center" },
+  heroTitle: { fontSize: 28, fontWeight: "800", color: "#111827", textAlign: "center" },
   heroSub: {
-    fontSize: 14, color: "#9a9a9a", marginTop: 8,
+    fontSize: 14, color: "#6b7280", marginTop: 8,
     textAlign: "center", lineHeight: 20,
   },
   body: { flex: 1, paddingHorizontal: 24, paddingBottom: 40 },
-  greeting: { fontSize: 22, fontWeight: "700", color: "#ffffff", marginBottom: 6 },
-  sub: { fontSize: 14, color: "#9a9a9a", marginBottom: 28, lineHeight: 20 },
+  greeting: { fontSize: 22, fontWeight: "700", color: "#111827", marginBottom: 6 },
+  sub: { fontSize: 14, color: "#6b7280", marginBottom: 28, lineHeight: 20 },
 });

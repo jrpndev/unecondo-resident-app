@@ -15,7 +15,7 @@ interface Props extends TouchableOpacityProps {
 
 const BG: Record<string, string> = {
   primary:   "#f97316",
-  secondary: "#2a2a2a",
+  secondary: "#e5e7eb",
   danger:    "#ef4444",
   ghost:     "transparent",
   outline:   "transparent",
@@ -23,7 +23,7 @@ const BG: Record<string, string> = {
 
 const TEXT_COLOR: Record<string, string> = {
   primary:   "#ffffff",
-  secondary: "#ffffff",
+  secondary: "#111827",
   danger:    "#ffffff",
   ghost:     "#f97316",
   outline:   "#f97316",

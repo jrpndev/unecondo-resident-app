@@ -27,7 +27,7 @@ export default function MaintenanceItemsScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={18} color="#ffffff" />
+          <ArrowLeft size={18} color="#111827" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Manutenções</Text>
@@ -39,7 +39,7 @@ export default function MaintenanceItemsScreen() {
         <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : items.length === 0 ? (
         <View style={styles.center}>
-          <Wrench size={48} color="#2a2a2a" />
+          <Wrench size={48} color="#d1d5db" />
           <Text style={styles.emptyTitle}>Nenhuma manutenção</Text>
           <Text style={styles.emptySub}>O cronograma de manutenções aparecerá aqui</Text>
         </View>
@@ -86,7 +86,7 @@ function Section({ title, items, color }: { title: string; items: MaintenanceIte
               )}
               <View style={sectionStyles.metaRow}>
                 <View style={sectionStyles.dateRow}>
-                  <Calendar size={11} color="#535353" />
+                  <Calendar size={11} color="#9ca3af" />
                   <Text style={sectionStyles.itemDate}>
                     {new Date(item.scheduledDate).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
                   </Text>
@@ -135,7 +135,7 @@ function Section({ title, items, color }: { title: string; items: MaintenanceIte
             />
           )}
           <View style={sectionStyles.zoomClose}>
-            <X size={20} color="#ffffff" />
+            <X size={20} color="#111827" />
           </View>
         </TouchableOpacity>
       </Modal>
@@ -144,22 +144,22 @@ function Section({ title, items, color }: { title: string; items: MaintenanceIte
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   header: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16,
-    borderBottomWidth: 1, borderBottomColor: "#2a2a2a",
+    borderBottomWidth: 1, borderBottomColor: "#e5e7eb",
     gap: 12,
   },
   backBtn: {
-    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    width: 36, height: 36, backgroundColor: "#ffffff",
     borderRadius: 18, alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: "#ffffff" },
-  headerSub: { fontSize: 12, color: "#9a9a9a", marginTop: 1 },
+  headerTitle: { fontSize: 20, fontWeight: "700", color: "#111827" },
+  headerSub: { fontSize: 12, color: "#6b7280", marginTop: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, gap: 8 },
-  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
-  emptySub: { fontSize: 13, color: "#535353", textAlign: "center" },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#9ca3af" },
+  emptySub: { fontSize: 13, color: "#9ca3af", textAlign: "center" },
   listContent: { padding: 16 },
   alertBanner: {
     backgroundColor: "#ef444410", borderWidth: 1, borderColor: "#ef444430",
@@ -172,29 +172,29 @@ const styles = StyleSheet.create({
 const sectionStyles = StyleSheet.create({
   group: { marginBottom: 24 },
   groupLabel: {
-    color: "#535353", fontSize: 10, fontWeight: "700",
+    color: "#9ca3af", fontSize: 10, fontWeight: "700",
     textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12,
   },
   groupCard: {
-    backgroundColor: "#1a1a1a", borderRadius: 16,
-    borderWidth: 1, borderColor: "#2a2a2a", overflow: "hidden",
+    backgroundColor: "#f5f5f5", borderRadius: 16,
+    borderWidth: 1, borderColor: "#e5e7eb", overflow: "hidden",
   },
   itemRow: {
     paddingHorizontal: 16, paddingVertical: 16,
     flexDirection: "row", alignItems: "flex-start", gap: 12,
   },
-  itemRowBorder: { borderBottomWidth: 1, borderBottomColor: "#2a2a2a" },
+  itemRowBorder: { borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
   iconWrap: {
     width: 36, height: 36, borderRadius: 12,
     alignItems: "center", justifyContent: "center", marginTop: 2,
   },
-  itemTitle: { color: "#ffffff", fontSize: 14, fontWeight: "700" },
-  itemLocation: { color: "#9a9a9a", fontSize: 11, marginTop: 2 },
+  itemTitle: { color: "#111827", fontSize: 14, fontWeight: "700" },
+  itemLocation: { color: "#6b7280", fontSize: 11, marginTop: 2 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 4 },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 4 },
-  itemDate: { color: "#9a9a9a", fontSize: 11 },
-  itemRecurrence: { color: "#535353", fontSize: 11 },
-  itemDesc: { color: "#9a9a9a", fontSize: 12, marginTop: 4 },
+  itemDate: { color: "#6b7280", fontSize: 11 },
+  itemRecurrence: { color: "#9ca3af", fontSize: 11 },
+  itemDesc: { color: "#6b7280", fontSize: 12, marginTop: 4 },
   itemImage: { borderRadius: 12, width: "100%", height: 120 },
   zoomOverlay: {
     flex: 1, backgroundColor: "rgba(0,0,0,0.9)",

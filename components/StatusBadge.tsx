@@ -7,9 +7,9 @@ interface Props {
 }
 
 const STATUS_CONFIG = {
-  PENDING:   { label: "Pendente",  bg: "#f59e0b22", text: "#fbbf24", dot: "#f59e0b" },
-  DELIVERED: { label: "Entregue",  bg: "#22c55e22", text: "#4ade80", dot: "#22c55e" },
-  RETURNED:  { label: "Devolvido", bg: "#ef444422", text: "#f87171", dot: "#ef4444" },
+  PENDING:   { label: "Pendente",  bg: "#f59e0b22", text: "#b45309", dot: "#f59e0b" },
+  DELIVERED: { label: "Entregue",  bg: "#22c55e22", text: "#15803d", dot: "#22c55e" },
+  RETURNED:  { label: "Devolvido", bg: "#ef444422", text: "#b91c1c", dot: "#ef4444" },
 };
 
 export function StatusBadge({ status }: Props) {

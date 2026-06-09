@@ -18,7 +18,7 @@ interface Props {
 export function MaintenanceModal({ message, checking = false, onRetry }: Props) {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1e293b" />
+      <StatusBar barStyle="light-content" backgroundColor="#ffffff" />
 
       <View style={styles.iconWrap}>
         <Wrench size={40} color="#f97316" strokeWidth={1.8} />
@@ -45,7 +45,7 @@ export function MaintenanceModal({ message, checking = false, onRetry }: Props) 
         activeOpacity={0.75}
       >
         {checking ? (
-          <ActivityIndicator color="#fff" size="small" />
+          <ActivityIndicator color="#ffffff" size="small" />
         ) : (
           <Text style={styles.btnText}>Verificar novamente</Text>
         )}
@@ -57,7 +57,7 @@ export function MaintenanceModal({ message, checking = false, onRetry }: Props) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 36,
@@ -66,23 +66,23 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: "#1e293b",
+    backgroundColor: "#ffffff",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: "#e5e7eb",
   },
   title: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#f1f5f9",
+    color: "#111827",
     marginBottom: 12,
     textAlign: "center",
   },
   message: {
     fontSize: 14,
-    color: "#94a3b8",
+    color: "#6b7280",
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 24,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 48,
     height: 2,
-    backgroundColor: "#1e293b",
+    backgroundColor: "#ffffff",
     borderRadius: 2,
     marginBottom: 20,
   },
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   btnText: {
-    color: "#fff",
+    color: "#ffffff",
     fontSize: 14,
     fontWeight: "700",
   },

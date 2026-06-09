@@ -81,7 +81,7 @@ export default function ChatScreen() {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ArrowLeft size={18} color="#ffffff" />
+          <ArrowLeft size={18} color="#111827" />
         </TouchableOpacity>
         <View style={styles.adminAvatar}>
           <Text style={styles.adminAvatarText}>{adminName.charAt(0).toUpperCase()}</Text>
@@ -96,7 +96,7 @@ export default function ChatScreen() {
         <View style={styles.center}><ActivityIndicator color="#f97316" /></View>
       ) : !adminUserId ? (
         <View style={styles.center}>
-          <MessageCircle size={52} color="#2a2a2a" />
+          <MessageCircle size={52} color="#d1d5db" />
           <Text style={styles.emptyTitle}>Administração indisponível</Text>
         </View>
       ) : (
@@ -104,7 +104,7 @@ export default function ChatScreen() {
           <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={styles.messages}>
             {messages.length === 0 && (
               <View style={styles.center}>
-                <MessageCircle size={40} color="#2a2a2a" />
+                <MessageCircle size={40} color="#d1d5db" />
                 <Text style={styles.emptySub}>Inicie uma conversa</Text>
               </View>
             )}
@@ -113,8 +113,8 @@ export default function ChatScreen() {
               return (
                 <View key={msg.id} style={[styles.msgRow, isMine ? styles.msgRowMine : styles.msgRowTheirs]}>
                   <View style={[styles.bubble, isMine ? styles.bubbleMine : styles.bubbleTheirs]}>
-                    <Text style={styles.bubbleText}>{msg.body}</Text>
-                    <Text style={[styles.bubbleTime, { color: isMine ? "rgba(255,255,255,0.5)" : "#535353" }]}>
+                    <Text style={[styles.bubbleText, isMine && styles.bubbleTextMine]}>{msg.body}</Text>
+                    <Text style={[styles.bubbleTime, { color: isMine ? "rgba(255,255,255,0.5)" : "#9ca3af" }]}>
                       {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                     </Text>
                   </View>
@@ -128,7 +128,7 @@ export default function ChatScreen() {
               value={message}
               onChangeText={setMessage}
               placeholder="Mensagem..."
-              placeholderTextColor="#535353"
+              placeholderTextColor="#9ca3af"
               style={styles.messageInput}
               multiline
             />
@@ -147,14 +147,14 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111111" },
+  root: { flex: 1, backgroundColor: "#f5f5f5" },
   header: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: "#2a2a2a", gap: 12,
+    borderBottomWidth: 1, borderBottomColor: "#e5e7eb", gap: 12,
   },
   backBtn: {
-    width: 36, height: 36, backgroundColor: "#2a2a2a",
+    width: 36, height: 36, backgroundColor: "#e5e7eb",
     borderRadius: 18, alignItems: "center", justifyContent: "center",
   },
   adminAvatar: {
@@ -163,11 +163,11 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
   adminAvatarText: { fontSize: 15, fontWeight: "700", color: "#f97316" },
-  adminName: { fontSize: 14, fontWeight: "700", color: "#ffffff" },
-  adminRole: { fontSize: 11, color: "#535353", marginTop: 1 },
+  adminName: { fontSize: 14, fontWeight: "700", color: "#111827" },
+  adminRole: { fontSize: 11, color: "#9ca3af", marginTop: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 24 },
-  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#535353" },
-  emptySub: { fontSize: 13, color: "#535353" },
+  emptyTitle: { fontSize: 15, fontWeight: "600", color: "#9ca3af" },
+  emptySub: { fontSize: 13, color: "#9ca3af" },
   messages: { padding: 16, gap: 10, flexGrow: 1 },
   msgRow: { flexDirection: "row" },
   msgRowMine: { justifyContent: "flex-end" },
@@ -175,21 +175,22 @@ const styles = StyleSheet.create({
   bubble: { maxWidth: "78%", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
   bubbleMine: { backgroundColor: "#f97316", borderBottomRightRadius: 4 },
   bubbleTheirs: {
-    backgroundColor: "#1a1a1a", borderWidth: 1,
-    borderColor: "#2a2a2a", borderBottomLeftRadius: 4,
+    backgroundColor: "#f5f5f5", borderWidth: 1,
+    borderColor: "#e5e7eb", borderBottomLeftRadius: 4,
   },
-  bubbleText: { color: "#ffffff", fontSize: 14, lineHeight: 20 },
+  bubbleText: { color: "#111827", fontSize: 14, lineHeight: 20 },
+  bubbleTextMine: { color: "#ffffff" },
   bubbleTime: { fontSize: 10, marginTop: 4 },
   inputBar: {
     flexDirection: "row", alignItems: "flex-end",
     paddingHorizontal: 16, paddingTop: 12,
-    borderTopWidth: 1, borderTopColor: "#2a2a2a",
-    gap: 10, backgroundColor: "#111111",
+    borderTopWidth: 1, borderTopColor: "#e5e7eb",
+    gap: 10, backgroundColor: "#f5f5f5",
   },
   messageInput: {
-    flex: 1, backgroundColor: "#1a1a1a", borderWidth: 1, borderColor: "#2a2a2a",
+    flex: 1, backgroundColor: "#f5f5f5", borderWidth: 1, borderColor: "#e5e7eb",
     borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
-    color: "#ffffff", fontSize: 14, maxHeight: 100,
+    color: "#111827", fontSize: 14, maxHeight: 100,
   },
   sendBtn: {
     width: 44, height: 44, backgroundColor: "#f97316",

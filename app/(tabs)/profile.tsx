@@ -68,8 +68,8 @@ export default function ProfileScreen() {
                     <QRCode
                       value={residentData.qrToken}
                       size={184}
-                      color="#ffffff"
-                      backgroundColor="#1a1a1a"
+                      color="#111827"
+                      backgroundColor="#f5f5f5"
                     />
                   </View>
                   <View style={styles.qrHint}>
@@ -142,11 +142,11 @@ export default function ProfileScreen() {
           style={styles.actionRow}
           activeOpacity={0.75}
         >
-          <View style={[styles.actionIcon, { backgroundColor: "#2a2a2a" }]}>
-            <Settings size={18} color="#9a9a9a" />
+          <View style={[styles.actionIcon, { backgroundColor: "#ffffff" }]}>
+            <Settings size={18} color="#6b7280" />
           </View>
           <Text style={styles.actionLabel}>Configurações</Text>
-          <ChevronRight size={16} color="#535353" />
+          <ChevronRight size={16} color="#9ca3af" />
         </TouchableOpacity>
 
         {/* Logout */}
@@ -169,7 +169,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#111111",
+    backgroundColor: "#f5f5f5",
   },
   headerArea: {
     alignItems: "center",
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderWidth: 3,
     borderColor: "#f97316",
     alignItems: "center",
@@ -195,11 +195,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#111827",
   },
   userEmail: {
     fontSize: 13,
-    color: "#9a9a9a",
+    color: "#6b7280",
     marginTop: 3,
   },
   roleBadge: {
@@ -225,24 +225,24 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#535353",
+    color: "#9ca3af",
     letterSpacing: 1.5,
     marginBottom: 10,
   },
   qrCard: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 20,
     alignItems: "center",
   },
   qrWrapper: {
     padding: 16,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     marginBottom: 16,
   },
   qrHint: {
@@ -261,19 +261,19 @@ const styles = StyleSheet.create({
   },
   qrUnit: {
     fontSize: 12,
-    color: "#535353",
+    color: "#9ca3af",
     marginTop: 4,
   },
   qrEmpty: {
     fontSize: 14,
-    color: "#535353",
+    color: "#9ca3af",
     paddingVertical: 32,
   },
   infoCard: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     overflow: "hidden",
   },
   infoRow: {
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   infoDivider: {
     height: 1,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#ffffff",
     marginLeft: 60,
   },
   infoIcon: {
@@ -299,27 +299,27 @@ const styles = StyleSheet.create({
   },
   infoKey: {
     fontSize: 11,
-    color: "#535353",
+    color: "#9ca3af",
     fontWeight: "500",
   },
   infoValue: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#111827",
     marginTop: 2,
   },
   actionRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#f5f5f5",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#e5e7eb",
     padding: 14,
     marginBottom: 10,
   },
   logoutRow: {
-    borderColor: "#3a1a1a",
+    borderColor: "#fecaca",
   },
   actionIcon: {
     width: 38,
@@ -333,6 +333,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#111827",
   },
 });

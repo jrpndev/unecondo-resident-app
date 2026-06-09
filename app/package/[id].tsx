@@ -200,54 +200,54 @@ export default function PackageDetailScreen() {
   const canSign = isDoorman && pkg.status === "PENDING" && !!pkg.residentId;
 
   const details = [
-    { icon: <Hash size={16} color="#9a9a9a" />,        label: "Código de rastreio", value: pkg.trackingCode || "Sem código" },
-    { icon: <MapPin size={16} color="#9a9a9a" />,       label: "Localização",        value: `${pkg.unit?.condo?.name ?? ""} — Unid. ${pkg.unit?.number ?? ""}` },
+    { icon: <Hash size={16} color="#6b7280" />,        label: "Código de rastreio", value: pkg.trackingCode || "Sem código" },
+    { icon: <MapPin size={16} color="#6b7280" />,       label: "Localização",        value: `${pkg.unit?.condo?.name ?? ""} — Unid. ${pkg.unit?.number ?? ""}` },
     pkg.resident
-      ? { icon: <User size={16} color="#9a9a9a" />,     label: "Destinatário",       value: pkg.resident.name }
+      ? { icon: <User size={16} color="#6b7280" />,     label: "Destinatário",       value: pkg.resident.name }
       : null,
     pkg.recipientName
-      ? { icon: <User size={16} color="#9a9a9a" />,     label: "Nome destinatário",  value: pkg.recipientName }
+      ? { icon: <User size={16} color="#6b7280" />,     label: "Nome destinatário",  value: pkg.recipientName }
       : null,
     pkg.senderName
-      ? { icon: <User size={16} color="#9a9a9a" />,     label: "Remetente",          value: pkg.senderName }
+      ? { icon: <User size={16} color="#6b7280" />,     label: "Remetente",          value: pkg.senderName }
       : null,
     pkg.origin
-      ? { icon: <Globe size={16} color="#9a9a9a" />,    label: "Origem",             value: getOriginLabel(pkg.origin) }
+      ? { icon: <Globe size={16} color="#6b7280" />,    label: "Origem",             value: getOriginLabel(pkg.origin) }
       : null,
     pkg.category
-      ? { icon: <Layers size={16} color="#9a9a9a" />,   label: "Categoria",          value: pkg.category }
+      ? { icon: <Layers size={16} color="#6b7280" />,   label: "Categoria",          value: pkg.category }
       : null,
     pkg.weight
-      ? { icon: <Weight size={16} color="#9a9a9a" />,   label: "Peso",               value: pkg.weight }
+      ? { icon: <Weight size={16} color="#6b7280" />,   label: "Peso",               value: pkg.weight }
       : null,
     pkg.orderId
-      ? { icon: <Tag size={16} color="#9a9a9a" />,      label: "Nº do pedido",       value: pkg.orderId }
+      ? { icon: <Tag size={16} color="#6b7280" />,      label: "Nº do pedido",       value: pkg.orderId }
       : null,
-    { icon: <Calendar size={16} color="#9a9a9a" />,     label: "Recebida em",        value: formatDate(pkg.createdAt) },
+    { icon: <Calendar size={16} color="#6b7280" />,     label: "Recebida em",        value: formatDate(pkg.createdAt) },
     pkg.deliveredAt
-      ? { icon: <CheckCircle2 size={16} color="#9a9a9a" />, label: "Entregue em",    value: formatDate(pkg.deliveredAt) }
+      ? { icon: <CheckCircle2 size={16} color="#6b7280" />, label: "Entregue em",    value: formatDate(pkg.deliveredAt) }
       : null,
   ].filter(Boolean) as { icon: React.ReactNode; label: string; value: string }[];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#111111" }}>
+    <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
       {/* Header */}
       <View
         style={{
-          backgroundColor: "#111111",
+          backgroundColor: "#f5f5f5",
           flexDirection: "row",
           alignItems: "center",
           paddingTop: insets.top + 16,
           paddingBottom: 16,
           paddingHorizontal: 20,
           borderBottomWidth: 1,
-          borderBottomColor: "#2a2a2a",
+          borderBottomColor: "#e5e7eb",
         }}
       >
         <TouchableOpacity
           onPress={() => router.back()}
           style={{
-            width: 36, height: 36, backgroundColor: "#2a2a2a",
+            width: 36, height: 36, backgroundColor: "#ffffff",
             borderRadius: 999, alignItems: "center", justifyContent: "center", marginRight: 12,
           }}
         >
@@ -262,7 +262,7 @@ export default function PackageDetailScreen() {
           <TouchableOpacity activeOpacity={0.9} onPress={() => setFullscreenUri(pkg.imageUrl!)}>
             <Image
               source={{ uri: pkg.imageUrl }}
-              style={{ width: "100%", height: 208, borderRadius: 16, marginBottom: 20, backgroundColor: "#2a2a2a" }}
+              style={{ width: "100%", height: 208, borderRadius: 16, marginBottom: 20, backgroundColor: "#ffffff" }}
               resizeMode="cover"
             />
           </TouchableOpacity>
@@ -272,8 +272,8 @@ export default function PackageDetailScreen() {
         {pkg.signatureUrl && (
           <View
             style={{
-              backgroundColor: "#1a1a1a", borderRadius: 16, padding: 16,
-              marginBottom: 20, alignItems: "center", borderWidth: 1, borderColor: "#2a2a2a",
+              backgroundColor: "#f5f5f5", borderRadius: 16, padding: 16,
+              marginBottom: 20, alignItems: "center", borderWidth: 1, borderColor: "#e5e7eb",
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
@@ -283,7 +283,7 @@ export default function PackageDetailScreen() {
             <TouchableOpacity activeOpacity={0.9} onPress={() => setFullscreenUri(pkg.signatureUrl!)}>
               <Image
                 source={{ uri: pkg.signatureUrl }}
-                style={{ width: "100%", height: 112, borderRadius: 12, backgroundColor: "#2a2a2a" }}
+                style={{ width: "100%", height: 112, borderRadius: 12, backgroundColor: "#ffffff" }}
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -293,8 +293,8 @@ export default function PackageDetailScreen() {
         {/* Details card */}
         <View
           style={{
-            backgroundColor: "#1a1a1a", borderRadius: 16, padding: 20,
-            marginBottom: 20, borderWidth: 1, borderColor: "#2a2a2a",
+            backgroundColor: "#f5f5f5", borderRadius: 16, padding: 20,
+            marginBottom: 20, borderWidth: 1, borderColor: "#e5e7eb",
           }}
         >
           <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
@@ -306,7 +306,7 @@ export default function PackageDetailScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: "white", fontWeight: "700", fontSize: 15 }}>{pkg.trackingCode || "Sem código de rastreio"}</Text>
-              <Text style={{ color: "#9a9a9a", fontSize: 13, marginTop: 2 }}>{pkg.description || "Sem descrição"}</Text>
+              <Text style={{ color: "#6b7280", fontSize: 13, marginTop: 2 }}>{pkg.description || "Sem descrição"}</Text>
             </View>
           </View>
 
@@ -315,15 +315,15 @@ export default function PackageDetailScreen() {
               flexDirection: "row", alignItems: "flex-start",
               paddingVertical: 14,
               borderBottomWidth: i < details.length - 1 ? 1 : 0,
-              borderBottomColor: "#2a2a2a",
+              borderBottomColor: "#e5e7eb",
             }}>
               <View style={{
                 marginRight: 12, marginTop: 2, width: 28, height: 28,
-                backgroundColor: "#2a2a2a", borderRadius: 8,
+                backgroundColor: "#ffffff", borderRadius: 8,
                 alignItems: "center", justifyContent: "center",
               }}>{item.icon}</View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: "#5a5a5a", fontSize: 11, fontWeight: "500" }}>{item.label}</Text>
+                <Text style={{ color: "#9ca3af", fontSize: 11, fontWeight: "500" }}>{item.label}</Text>
                 <Text style={{ color: "white", fontSize: 13, fontWeight: "600", marginTop: 2 }}>{item.value}</Text>
               </View>
             </View>
@@ -363,7 +363,7 @@ export default function PackageDetailScreen() {
             onPress={openSignaturePad}
             disabled={statusMutation.isPending}
             style={{
-              backgroundColor: "#1a1a1a", borderWidth: 2, borderColor: "#4f46e5",
+              backgroundColor: "#f5f5f5", borderWidth: 2, borderColor: "#4f46e5",
               borderRadius: 999, paddingVertical: 16,
               flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 12,
             }}
@@ -393,7 +393,7 @@ export default function PackageDetailScreen() {
               onPress={() => confirmStatus("RETURNED")}
               disabled={statusMutation.isPending}
               style={{
-                backgroundColor: "#1a1a1a", borderWidth: 2, borderColor: "#3a2a2a",
+                backgroundColor: "#f5f5f5", borderWidth: 2, borderColor: "#e5e7eb",
                 borderRadius: 999, paddingVertical: 16,
                 flexDirection: "row", alignItems: "center", justifyContent: "center",
               }}
@@ -407,13 +407,13 @@ export default function PackageDetailScreen() {
               onPress={() => confirmStatus("PENDING")}
               disabled={statusMutation.isPending}
               style={{
-                backgroundColor: "#1a1a1a", borderWidth: 2, borderColor: "#2a2a2a",
+                backgroundColor: "#f5f5f5", borderWidth: 2, borderColor: "#e5e7eb",
                 borderRadius: 999, paddingVertical: 16,
                 flexDirection: "row", alignItems: "center", justifyContent: "center",
               }}
             >
-              <RotateCcw size={20} color="#9a9a9a" />
-              <Text style={{ color: "#9a9a9a", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Reverter para Pendente</Text>
+              <RotateCcw size={20} color="#6b7280" />
+              <Text style={{ color: "#6b7280", fontWeight: "700", fontSize: 15, marginLeft: 8 }}>Reverter para Pendente</Text>
             </TouchableOpacity>
           )}
         </View>
