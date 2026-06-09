@@ -46,5 +46,26 @@ module.exports = function withGradleWrapper(config) {
     },
   ]);
 
+  // Step 3: limitar arquiteturas a arm64-v8a — x86/x86_64 são só p/ emulador
+  // Windows e quebram (e tornam lento) o build no WSL/Linux.
+  config = withDangerousMod(config, [
+    "android",
+    (config) => {
+      const gradlePropsPath = path.join(
+        config.modRequest.platformProjectRoot,
+        "gradle.properties"
+      );
+
+      let content = fs.readFileSync(gradlePropsPath, "utf8");
+      content = content.replace(
+        /^reactNativeArchitectures=.*$/m,
+        "reactNativeArchitectures=arm64-v8a"
+      );
+      fs.writeFileSync(gradlePropsPath, content);
+
+      return config;
+    },
+  ]);
+
   return config;
 };
