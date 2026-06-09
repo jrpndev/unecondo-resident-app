@@ -11,18 +11,16 @@ interface ThemeState {
   loadSaved: () => Promise<void>
 }
 
+// Tema branco permanente: o app é travado em 'light'. setMode/loadSaved
+// não alteram mais o tema (mantidos para compatibilidade de interface) —
+// isso garante branco mesmo para usuários com 'dark' salvo no aparelho.
 export const useThemeStore = create<ThemeState>((set) => ({
-  mode: 'dark',
-  setMode: async (mode) => {
-    set({ mode })
-    await SecureStore.setItemAsync(THEME_KEY, mode)
+  mode: 'light',
+  setMode: async () => {
+    set({ mode: 'light' })
+    await SecureStore.setItemAsync(THEME_KEY, 'light')
   },
   loadSaved: async () => {
-    try {
-      const saved = await SecureStore.getItemAsync(THEME_KEY)
-      if (saved === 'dark' || saved === 'light' || saved === 'system') {
-        set({ mode: saved as ThemeMode })
-      }
-    } catch {}
+    set({ mode: 'light' })
   },
 }))
