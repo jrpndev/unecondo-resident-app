@@ -2,7 +2,7 @@
   "expo": {
     "name": "Unecondo Morador",
     "slug": "unecondo-resident",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -22,6 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f97316"
       },
+      "versionCode": 2,
       "package": "unecondo.resident.app",
       "googleServicesFile": "./google-services.json",
       "usesCleartextTraffic": true,
